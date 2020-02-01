@@ -1,0 +1,4 @@
+
+= Relaxed bingins
+
+A https://github.com/spring-projects/spring-boot/wiki/Relaxed-Binding-2.0 oldalon megtalálsz minden információt.

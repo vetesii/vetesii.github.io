@@ -1,0 +1,72 @@
+
+= OpenSSL
+
+Windows-ra innen tudod letölteni: https://slproweb.com/products/Win32OpenSSL.html (**eddig ezzel nem volt gond
+működésileg és biztonságilag sem**)
+
+== EC generálás
+
+* https://www.openssl.org/docs/apps/ec.html
+* https://wiki.openssl.org/index.php/Command_Line_Elliptic_Curve_Operations
+* https://stackoverflow.com/questions/29355027/what-method-does-openssl-use-to-combine-a-public-ec-keys-coordinates
+
+=== SO - https://superuser.com/a/1103530
+
+[@ https://superuser.com/users/333086/gareththered]
+
+For a list of possible curve names, run:
+
+[source,bash]
+----
+openssl ecparam -list_curves
+----
+
+Then, pick a curve from the list and replace your first line with:
+
+[source,bash]
+----
+openssl ecparam -name secp521r1 -genkey -noout -out my.key.pem
+----
+
+(replace secp521r1 with whichever curve you choose from the list)
+
+Finally, generate the CSR as you have done:
+
+[source,bash]
+----
+openssl req -new -sha256 -key my.key.pem -out my.csr
+----
+
+=== SO - https://stackoverflow.com/a/29362133/1807077
+
+[@Chiara Hsieh]
+
+Generate EC parameters
+
+[source,bash]
+----
+openssl ecparam -name secp256k1 -out secp256k1.pem
+----
+
+Generate EC KEY with parameters
+
+[source,bash]
+----
+openssl ecparam -in secp256k1.pem -genkey -noout -out secp256k1-key.pem
+----
+
+Print public, private key components(uncompressed)
+
+[source,bash]
+----
+openssl ec -in secp256k1-key.pem -text -noout
+or
+openssl ec -in secp256k1-key.pem -text -noout -conv_form uncompressed
+----
+
+Print public, private key components(compressed)
+
+[source,bash]
+----
+openssl ec -in secp256k1-key.pem -text -noout -conv_form compressed
+----

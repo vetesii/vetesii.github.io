@@ -1,0 +1,10 @@
+
+= 05 - CA megvalósítások
+
+== EJBCA
+
+* **Java megvalósítás**
+* https://en.wikipedia.org/wiki/EJBCA
+* https://www.ejbca.org/documentation/
+* https://download.primekey.com/docs/EJBCA-Enterprise/6_15_2/Certificate_Authority_Overview.html
+

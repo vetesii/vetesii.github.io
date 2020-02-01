@@ -1,0 +1,141 @@
+
+= 50 - Why RSA widely adoptes than EC
+
+== https://www.ssl.com/article/comparing-ecdsa-vs-rsa/ (@Nick Naziridis) ['20-02-01 másolat]
+
+https://www.ssl.com/article/comparing-ecdsa-vs-rsa/
+
+=== Introduction
+
+Lately, there have been numerous discussions on the pros and cons of RSA[01] and ECDSA[02], in the crypto community. For
+the uninitiated, they are two of the most widely-used digital signature algorithms, but even for the more tech savvy, it
+can be quite difficult to keep up with the facts. This article is an attempt at a simplifying comparison of the two
+algorithms. Although, this is not a deeply technical essay, the more impatient reader can check the end of the article
+for a quick TL;DR table with the summary of the discussion.
+
+=== ECDSA vs RSA
+
+ECDSA and RSA are algorithms used by public key cryptography[03] systems, to provide a mechanism for authentication.
+Public key cryptography is the science of designing cryptographic systems that employ pairs of keys: a public key (hence
+the name) that can be distributed freely to anyone, along with a corresponding private key, which is only known to its
+owner. Authentication refers to the process of verifying that a message, signed with a public key, was created by the
+holder of a specific private key. Algorithms used for authentication are collectively known as digital signature
+algorithms [04].
+
+Such algorithms rely on complex mathematical problems that are relatively simple to compute one way, although quite
+impractical to reverse. This means that for an attacker to forge a digital signature, without any knowledge of the
+private key, they must solve intractable mathematical problems, such as integer factorization, for which there are no
+known efficient solutions [05].
+
+On that account, since there are no efficient solutions available for the underlying mathematical problems, evaluation
+of cryptographic algorithms can only occur with respect to their implementation details in conjunction with the level of
+security they provide. For this purpose, this section presents a comparison of RSA and ECDSA using five (or six)
+quantifying metrics. Each metric is introduced in its own section, along with its significance for anyone that is trying
+to decide between the two algorithms.
+
+=== Adoption
+
+RSA has been the industry standard for public key cryptography for many years now. Most SSL/TLS certificates were (and
+still are) being signed with RSA keys. Although most CAs have, by now, implemented support for ECDSA-based certificates,
+this long-lived adoption has led to many legacy systems only supporting RSA. Therefore, if a vendor requires
+backwards-compatibility with old client software, they are forced to use certificates signed with RSA. Nowadays, though,
+most modern clients have implemented support for ECDSA, which will probably remove this compatibility constraint in the
+near future.
+
+=== Standard maturity
+
+RSA was first standardised for SSL/TLS in 1994 [06], while ECDSA was introduced in the specification of TLS v1.2 in 2008
+[07]. This age difference indicates a disparity in the maturity of the standards that describe the best practices for
+each algorithm. Although, RSA standards have been extensively researched and audited, ECDSA has not seen that much
+attention. Recently, advocacy of this algorithm by major CAs and its adoption in most modern SSL/TLS clients has
+resulted in more extensive research being published, but it still remains a relatively new scheme. This leaves room for
+undiscovered design flaws or erroneous implementations being disclosed in the future.
+
+=== Key-size to security-level ratio
+
+Security level [08] is a metric in cryptography, referring to the strength of a cryptographic primitive or function. It
+is commonly measured in “bits” that denote the number of operations an attacker needs to perform to compromise its
+security. This metric can provide a quantifying method to compare the efficacy of various cryptosystems. It should be
+emphasized that public key size is also measured in bits, but it is an entirely different concept, referring to the
+physical size of the key.
+
+In this regard, a common RSA 2048-bit public key provides a security level of 112 bits. However, ECDSA requires only
+224-bit sized public keys to provide the same 112-bit security level. This striking difference in key size has two
+significant implications. Smaller key sizes require less bandwidth to set up an SSL/TLS stream, which means that ECDSA
+certificates are ideal for mobile applications. Moreover, such certificates can be stored into devices with much more
+limiting memory constraints, a fact that allows m/TLS stacks to be implemented in IoT devices without allocating many
+resources. Published research, even shows that ECDSA is more efficient [09] to implement in embedded devices.
+
+=== Performance & time complexity
+
+Algorithms are abstract recipes describing a method to achieve a certain goal. In computer science, their performance is
+measured by counting the number of elementary operations that are necessary to reach this predetermined ending
+condition. Such metric is called time complexity. Since different input sizes require different number of operations,
+time complexity is usually expressed as a function of input size.
+
+Both the algorithms in question, perform about the same time-consuming mathematical operations, such as divisions and
+multiplications. Thus, input size (which in this case is the size of their keys) remains the most significant factor
+affecting their performance. Comparing the two algorithms, needs to be distinguished between signing a message and
+verifying a signature. In most practical implementations, RSA seems to be significantly faster than ECDSA in verifying
+signatures, though it is slower while signing.
+
+Things get complicated for higher security levels. For example, in the most common configuration of a security level of
+112 bits, RSA requires 2048-bit versus ECDSA needing 224-bit keys. In the next common level of 128 bits, RSA requires a
+3072-bit key, while ECDSA only 256 bits. This results in RSA’s performance to decline dramatically, whereas ECDSA is
+only slightly affected. As a consequence of this scaling issue, although RSA seems more performant at the moment, the
+continuous increase in security requirements could very well render ECDSA the de-facto solution in the future.
+
+=== Post-quantum resistance
+
+Shor’s algorithm [10] is a well known algorithm for breaking RSA keys using quantum computers. Since there are no
+(public) practical implementations of a such a machine, the following is a conjecture on the future of public key
+cryptography. At the moment of this writing, the best implementation of Shor’s algorithm can defeat a 15-bit key RSA
+encryption. Although this does not sound concerning, as more and more research is directed towards quantum computing,
+RSA could be getting into serious trouble at any time.
+
+Advocates for ECDSA should not be quick to celebrate though, because elliptic curve cryptography is also vulnerable [11]
+to a modified version of Shor’s algorithm. Consequently, if both ciphers can be broken by a quantum computer, the only
+objective metric is the complexity required to implement such an attack. According to public research, RSA 2048-bit keys
+require 4098 qubits (and 5.2 trillion Tofolli gates) to be defeated, whereas ECDSA 256-bit keys require only 2330 qubits
+(and 126 billion Tofolli gates). Hence, RSA is more expensive to break, using a theoretical quantum machine.
+
+=== Conclusion
+
+Although, this comparison is, by no means comprehensive, it is apparent that RSA has rightfully gained its position as
+the leading digital signature algorithm for most certificate applications. However, since technology is always advancing
+in more unpredictable ways, security awareness and needs are also increasing. A little more than ten years ago, embedded
+device security was fiction and nowadays secure communications is a must-have for any real-world application. As a
+result, even if ECDSA is relatively young, it is anyone’s guess if it will replace RSA as the standard for
+authentication in SSL/TLS implementations.
+
+If you, the reader, still cannot decide which algorithm to choose, there are solutions for supporting both ECDSA and RSA
+(as a fallback mechanism), until the crypto community settles on a winner. Check this article section for a future
+how-to guide.
+
+**TL;DR table**
+
+[width="100%",options="header"]
+|====================
+| metric   		| RSA 	| ECDSA
+| Adoption 		| ✔  	|
+| Maturity 		| ✔ 	|
+| Key size 		|  		| ✔
+| Performance 	| ✔ 	|
+| Scaling 		|  		| ✔
+| P/Q resistance | ✔ 	|
+|====================
+
+
+=== References
+
+. RSA algorithm: https://en.wikipedia.org/wiki/RSA_(cryptosystem
+. ECDSA algorithm: https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm
+. Public key cryptography: https://en.wikipedia.org/wiki/Public-key_cryptography
+. Digital signature algorithms: https://en.wikipedia.org/wiki/Digital_signature
+. NP complexity: https://en.wikipedia.org/wiki/NP_(complexity
+. SSL v.0.0 RFC: https://tools.ietf.org/html/draft-hickman-netscape-ssl-00
+. TLS v.1.2 RFC: https://tools.ietf.org/html/rfc5246
+. Security level: https://en.wikipedia.org/wiki/Security_level
+. RSA vs ECC for embedded: http://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-8951-CryptoAuth-RSA-ECC-Comparison-Embedded-Systems-WhitePaper.pdf
+. Shor’s algorigthm: https://en.wikipedia.org/wiki/Shor%27s_algorithm
+. Quantum resource estimates for ECDL: https://eprint.iacr.org/2017/598

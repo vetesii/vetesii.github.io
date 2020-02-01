@@ -1,0 +1,7 @@
+
+= PKI (public key infrastructure)
+
+== Bevezető olvasmányok
+
+* https://en.wikipedia.org/wiki/Public_key_infrastructure
+* https://hu.wikipedia.org/wiki/Nyilv%C3%A1nos_kulcs%C3%BA_infrastrukt%C3%BAra

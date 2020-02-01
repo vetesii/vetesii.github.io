@@ -1,0 +1,7 @@
+
+= ×README
+
+**Privát jegyzetek confluence push-a**
+
+Errefelé taláod meg a lokálisan eltett asciidoc jegyzeteim automatikusan konvertált és Confluence  push-olt változásait.
+Érdemes figyelembe venned, hogy az itt megírt hozzászólásaid el fognak veszni a következő push alatt.

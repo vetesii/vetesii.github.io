@@ -1,0 +1,52 @@
+
+= 78 - RSA vs EC break
+
+Mint minden másnál, ennél is vannak már egyszerűen megfogalmazott válaszok, **amelyeket nem validáltam - nyilván -
+személyesen**.
+
+== https://security.stackexchange.com/questions/33069
+
+https://security.stackexchange.com/questions/33069/why-is-ecc-more-vulnerable-than-rsa-in-a-post-quantum-world
+
+Az egyik legvalidabbnak tűnő - egyszerű nyelven fogalmazott - kibontás. A lenti offline mentés mellett van még néhány
+komment és egy másik válasz is. Érdemes megnézned
+
+=== https://security.stackexchange.com/a/96880 (by Indolering)
+
+The limiting factor for an attacker using a quantum computer is the number of qubits they can keep entangled long enough
+to perform a calculation. The qubits required to crack RSA keys are estimated to be 2•bits while ECC is roughly 6•bits,
+but RSA keys are generally much longer so they end up taking more qubits; roughly 3x on the low end (2048 vs 224) and
+10x on the high end (4096 vs 384) see note.
+
+Here's a heavily simplified table comparing the rough number of qubits required to crack common key lengths:
+
+[source,]
+----
+|           RSA       |           ECC       |
+| Key Length | qubits | Key Length | qubits |
+|------------|--------|------------|--------|
+| 1024       | 2048   | 163        | 1000   |
+| 2048       | 4096   | 224        | 1300   |
+| 3072       | 6144   | 256        | 1500   |
+| 4096       | 8192   | 383        | 2300   |
+| 15360      | 30720  | 512        | 3000   |
+----
+
+Over the past 20 years, we haven't figured out how to build a _fully-fledged_ quantum computer with more than a handful of
+qubits. So to compare how much longer it will take a quantum computer to crack an RSA key compared to an "equivalent"
+ECC key, we basically have to assume a manufacturer will figure out decoherence in a way that can be scaled up. Then it
+becomes a question of how quickly that scaling will occur.
+
+Assuming linear rates of growth (with 2048 RSA vs 224 ECC low at the end and 4096 RS vs 384 ECC at the high end) RSA
+gets a ~5-10 year bonus at 500 qubits/year, ~3-5 years at 1K qubits/year, and ~1.5-3 years at 2K qubits/year.
+
+If we assume exponential rates of growth, once we can crack a 224-bit ECC key (the weakest common ECC key) we are one
+generation away from cracking a 4096-bit RSA key (the strongest common RSA key). At the pace of Moore's law (~2 years)
+RSA gets ~2 year bonus. Although DWAVE's adiabatic quantum computer isn't useful for these types of problems, they have
+been doubling their number of qubits roughly every 4 years.
+
+So the difference is actually relatively small: 2-5 years + time to manufacturing breakthrough.
+
+Note _4096 bit RSA and 383 ECC are not directly comparable in terms of symmetric key strength. 4096 bit RSA key is
+roughly equivalent to a 142 bit symmetric key whereas a 383 bit ECC key is equivalent to a 192 symmetric key. I compare
+them directly above because they are the largest commonly supported key sizes._

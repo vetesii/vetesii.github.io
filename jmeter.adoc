@@ -1,0 +1,6 @@
+
+= Jmeter
+
+*innen tudod letölteni**: http://jmeter.apache.org/download_jmeter.cgi, amelyet mondjuk a `d:\portable\` mappába
+csomagolj ki
+

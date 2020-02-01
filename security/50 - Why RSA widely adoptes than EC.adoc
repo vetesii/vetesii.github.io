@@ -1,0 +1,79 @@
+
+= 78 - RSA vs EC break
+
+https://crypto.stackexchange.com/questions/1190/why-is-elliptic-curve-cryptography-not-widely-used-compared-to-rsa
+
+== https://crypto.stackexchange.com/a/1194 (@ThomasPornin)
+
+RSA was there first. That's actually enough for explaining its preeminence. RSA was first published in 1978 and the
+PKCS#1 standard (which explains exactly how RSA should be used, with unambiguous specification of which byte goes where)
+has been publicly and freely available since 1993. The idea of using elliptic curves for cryptography came to be in
+1985, and relevant standards have existed since the late 1990s. Also, both RSA and elliptic curves have been covered by
+patents, but the RSA patents have expired in 2000, while some elliptic curve patents are still alive.
+
+One perceived, historical advantage of RSA is that RSA is two algorithms, one for encryption and one for signatures,
+that could both use the same key and the same core implementation. But this is not a real advantage because it is
+usually a bad idea to use the same key for both encryption and signatures. Also, you can mathematically use the same
+private key for ECDH (key exchange) and for ECDSA (signatures), so that's really not an "advantage" of RSA over EC at
+all.
+
+Another advantage of RSA is that its mathematics are somewhat simpler than those involved for elliptic curves, so many
+engineers feel that they "understand" RSA more than elliptic curves; again, a fallacious argument, since implementation
+of cryptographic algorithms is fraught with subtle details and best left to professionals -- and there is no need to
+understand the internal mathematics of a library to simply use it (we could make this argument semi-valid by pointing
+out that RSA relies on the hardness of factorization, which has been studied for 2500 years, whereas discrete logarithm
+on elliptic curves can only sport about 25 years of research).
+
+The only scientifically established advantaged of RSA over elliptic curves cryptography is that public key operations
+(e.g. signature verification, as opposed to signature generation) are faster with RSA. But public-key operations are
+rarely a bottleneck, and we are talking about 8000 ECDSA verifications per second, vs 20000 RSA verifications per
+second.
+
+An additional interoperability issue is that elliptic-curve operations can be made over curves of distinct types, and
+can be widely optimized if you stick to a specific curve known when the code was written. There is no security issue in
+using the same curve for many distinct people with distinct key pairs. But it means that most implementations will only
+support two or three specific curves. NIST has defined 15 standard curves. However, in practice, many implementations
+only support two of them, P-256 and P-384, because that's what is recommended by NSA (under the name "suite B")(a
+notorious example is NSS, the cryptography library used by the Firefox Web browser for SSL).
+
+There are two ANSI standards for elliptic curves, X9.62 for signatures (partially redundant with FIPS 186-3, but much
+more detailed), and X9.63 for asymmetric encryption.
+
+So there is a lot of political push for the adoption of elliptic curves in cryptography, by both academic researchers
+and institutional organizations. But inertia of the firmly entrenched RSA will take time to defeat. Also, the perceived
+mathematical complexity, and the potential legal risks related to patents, still hinder wide acceptance of elliptic
+curves.
+
+(To your list, you can add "key generation time": generating a new key pair for ECDH or ECDSA is widely faster than
+generating a new RSA key pair.)
+
+== https://crypto.stackexchange.com/a/1195 (@Jerry Coffin)
+
+This is mostly a supplement to @ThomasPornin's answer, not a complete answer on its own (but too long to fit in a
+comment).
+
+ECC uses a finite field, so even though elliptical curves themselves are relatively new, most of the math involved in
+taking a discrete logarithm over the field is much older. In fact, most of the algorithms used are relatively minor
+variants of factoring algorithms.
+
+The real question (and one that's still open, AFAIK) is whether discrete logarithms over an elliptical curve have the
+same "smoothness" property as you use in the sieve-based algorithms for factoring the product of large primes. If
+elliptical curves aren't "smooth" (and quite a few mathematicians seem convinced they're not) then the sieve-style
+factoring algorithms can't be adapted to taking discrete logarithms over elliptical curves. If they are smooth (and a
+fair number of other mathematicians seem convinced this is likely to be true), however, the sieve-style algorithms could
+be adapted. This would be a significant "break" against ECC -- you'd need to increase key sizes substantially to
+maintain security (probably not to quite as large as RSA for equivalent security, but fairly close).
+
+What this all comes down to is one thing: it's not nearly so clear-cut a difference as 2500 years vs. a few decades. If
+anything, almost the opposite is actually true: variants of most of the older factoring algorithms can be used to find
+discrete logarithms over elliptical curves. What does not apply (at least based on present knowledge) to elliptical
+curves is the research of the last few decades or so into sieve-based algorithms.
+
+As far as the patent situation goes, I think the situation is much more clear than @poncho implies. Yes, Certicom holds
+some patents (120 currently, though not all of them are on ECC), but what is or isn't covered by those patents has been
+quite clear for years. Their patents cover some specific ways to optimize ECC, but definitely do not cover ECC itself.
+In fact, the patents themselves have a "Field of the Invention" (or, in some, "Background of the invention") section
+that tells you about what was known before the patent, and these have a fairly complete explanation of how to use ECC
+for both encryption and signatures. For example, see US Patent Number 6,141,420, which has quite a decent explanation of
+the math involved in elliptical curves, and how to implement ElGamal with elliptical curves -- all in the description of
+what was known prior to the patent.

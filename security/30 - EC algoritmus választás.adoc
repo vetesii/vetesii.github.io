@@ -1,0 +1,6 @@
+
+= 30 - EC algoritmus választás
+
+* https://crypto.stackexchange.com/questions/60366/dsa-vulnerability-in-ecdsa?rq=1: **továbbra is igaz, hogy ne írj
+  saját lib-et, főleg ne security-t...**, kell jó random és megfelelő megvalósítás
+*
