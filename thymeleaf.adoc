@@ -1,0 +1,14 @@
+
+= Thymeleaf
+
+== Spring boot + Thymeleaf maven projekt
+
+https://github.com/Bernardo-MG/spring-mvc-thymeleaf-maven-archetype
+
+**A README-vel ellentétben használd a lentit úgy, hogy a verziót kinézed maven central-ról és vagy a GITHUB readme
+tetején a badge verzió számból.**
+
+[source,bash]
+----
+mvn archetype:generate -DarchetypeGroupId=com.bernardomg.maven.archetypes -DarchetypeArtifactId=spring-mvc-thymeleaf-archetype -DarchetypeVersion=1.1.6
+----

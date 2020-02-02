@@ -1,5 +1,5 @@
 
-= 50 - Why RSA widely adoptes than EC
+= 50 - Comparing ECDSA vs RSA
 
 == https://www.ssl.com/article/comparing-ecdsa-vs-rsa/ (@Nick Naziridis) ['20-02-01 másolat]
 

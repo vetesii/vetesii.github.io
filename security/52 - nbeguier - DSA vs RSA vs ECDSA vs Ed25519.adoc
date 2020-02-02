@@ -1,0 +1,97 @@
+
+= 52 - nbeguier - DSA vs RSA vs ECDSA vs Ed25519
+
+[@ https://medium.com/@nbeguier] [mentve: '20-02-01]
+
+https://medium.com/@nbeguier/a-real-world-comparison-of-the-ssh-key-algorithms-b26b0b31bfd9
+
+*Comparison of the SSH Key Algorithms*
+
+This story is about comparing the main algorithms use to generate an SSH key, describe their weaknesses and place them
+on the Moore Law.
+
+How far the main algorithms are, cryptologically speaking, from each other ?
+
+image::https://imgs.xkcd.com/comics/standards.png[]
+
+== DSA vs RSA vs ECDSA vs Ed25519
+
+For years now, advances have been made in solving the complex problem of the **DSA**, and it is now **__mathematically__
+broken**, especially with a standard key length. Moreover, the attack may be possible to extend to RSA as well.
+
+I’m not saying that you shouldn’t use DSA or RSA, but the key length has to be really long. Of course, there is an
+impact during the login.
+
+I suggest you to use elliptic curve cryptography instead. The ECC algorithms supported by OpenSSH are ECDSA and, since
+OpenSSH 6.5, Ed25519.
+
+With OpenSSH, NIST curves are used for ECDSA (generally NIST P-256), and according to the article Security dangers of
+the NIST curves, it is very likely that an NSA backdoor is hidden there. If the NSA can already crack it, then it won’t
+be as hard to crack for somebody else…
+
+Ed25519 is quite the same, but with a better curve (Curve25519).
+
+http://safecurves.cr.yp.to/[safecurves.cr.yp.to] compares elliptic curves, there is a big difference between NIST P-256
+and Curve25519 !
+
+Also, DSA and ECDSA have a nasty property: they require a parameter usually called k to be completely random, secret,
+and unique. In practice, that means that if you connect to your server from a machine with a poor random number
+generator and e.g. the same k happens to be used twice, an observer of the traffic can figure out your private key.
+
+== Moore Law
+
+[quote,]
+____
+How long do you want to be protected ?
+____
+
+
+ECRYPT provides rather conservative guiding principles, based on current state-of-the-art research, addressing the
+construction of new systems with a long life cycle.
+
+Following their recommendation, we can divide in three categories the protection you want.
+
+=== Legacy standard level
+
+Should not be used in new systems
+
+[source,]
+----
+RSA key length : 1024 bits
+ECDSA / Ed25519 : 160 bits
+----
+
+=== Near term protection
+
+Security for at least ten years (2018–2028)
+
+[source,]
+----
+RSA key length : 3072 bits
+ECDSA / Ed25519 : 256 bits
+----
+
+=== Long-term protection
+
+Security for thirty to fifty years (2018–2068)
+
+[source,]
+----
+RSA key length : 15360 bits
+ECDSA / Ed25519 : 512 bits
+----
+
+== Conclusion
+
+*Never use DSA or ECDSA.*
+
+* *Ed25519* is probably the strongest mathematically (and also the fastest), but not yet widely supported. At least 256
+  bits long.
+* *RSA* is the best bet if you can’t use Ed25519. At least *3072 bits* long.
+
+Now you are aware of the different algorithms, you can upgrade your SSH Key.
+
+== Why not use SSH Certificate ?
+
+In addition, you can use an SSH Certificate to be much more secure. With this method, you don’t have to worry about the
+algorithm, but you will have to sign your public key regularly.

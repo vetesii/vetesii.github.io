@@ -1,0 +1,5 @@
+
+= java - docker memory limit
+
+https://github.com/fmarot/docker-java#conclusion):
+

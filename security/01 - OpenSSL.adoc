@@ -17,7 +17,7 @@ működésileg és biztonságilag sem**)
 For a list of possible curve names, run:
 
 [source,bash]
-----
+---include::security\50 - Comparing Ed25519 vs RSA.adoc[]-
 openssl ecparam -list_curves
 ----
 

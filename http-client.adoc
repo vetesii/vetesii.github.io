@@ -1,0 +1,6 @@
+
+= Http-client
+
+== Connection management és beállítása
+
+* *http://hc.apache.org/httpcomponents-client-ga/tutorial/html/connmgmt.html

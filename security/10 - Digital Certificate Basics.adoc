@@ -1,0 +1,297 @@
+
+= 10 - Digital Certificate Basics
+
+[@By Ivan Krizsan] [másolva: '20-02-01]
+
+I have used digital certificates for quite some time without actually knowing how things work, for instance when a HTTPS
+connection is established between a client and a server. My knowledge was limited to a set of procedures like “put the
+truststore here and insert the appropriate password there and things will work”.
+
+In this article, I explain to myself some of the concepts commonly associated with digital certificates and their use.
+
+I have tried to introduce the different concepts in an order so that all the concepts needed to understand a new
+concepts have already been properly explained. Regretfully, this has not always been possible so please bear that in
+mind when reading this article.
+
+== Algorithm
+
+An algorithm is a list of instructions that are to be performed in a specific order which purpose is to produce a
+specific result.
+
+One everyday-example of an algorithm is a cooking recipe, which is a list of instructions that, given a number of
+ingredients, hopefully will produce an edible product.
+
+_...itt volt egy lényegtelen kép..._
+
+An algorithm can take a number of parameters. For example, a cooking recipe may take the number of persons that are to
+be served as a parameter. The weight, volume or count of each of the ingredients in the recipe is multiplied with the
+number of persons, in order to produce the proper amount of food.
+
+Cryptographic algorithms, which is the kind of algorithms that this article focus on, is a list of instructions that
+describe the process of encrypting or decrypting messages.
+
+== Encryption
+
+Encryption is a process in which a message of some sort that can be readily interpreted is transformed into a message
+that is difficult, or impossible, to interpret. The original, interpretable, message is said to be a clear-text message
+and the processed message is called en encrypted message.
+
+A trivial example of encryption may consist of replacing characters with digits.
+
+Example:
+
+[source,]
+----
+a = 1, b = 2, c = 3 etc.
+Clear-text message: hello
+Encrypted message: 8, 5, 12, 12, 15
+----
+
+== Decryption
+
+Decryption is the opposite to encryption, that is a process in which an encrypted message is transformed into a message
+in clear-text.
+
+[source,]
+----
+Example:
+a = 1, b = 2, c = 3 etc.
+Encrypted message: 8, 5, 12, 12, 15
+Clear-text message: hello
+----
+
+== Cryptographic Key
+
+A cryptographic key, commonly abbreviated key, is a parameter to a cryptographic algorithm.
+
+Such keys are commonly used to transform messages in clear-text to encrypted messages or vice versa.
+
+== Symmetric Cryptography
+
+Symmetric cryptography is cryptography, that is encrypting and decrypting messages, performed using a group of
+cryptographic algorithms which require the same cryptographic key that was used to encrypt a message to be used when
+decrypting the message.
+
+The key is commonly referred to as a shared secret; if exactly two persons know a key, they can use it to encrypt
+messages which can only be read by the other person holding the key (and the person who wrote the message).
+
+Symmetric cryptography has been used for thousands of years in various forms.
+
+image::images/Symmetric-Cryptography.jpg[]
+
+Symmetric cryptography; the same key is used to encrypt and decrypt the message.
+
+The figure above shows an example of symmetric cryptography:
+
+* The Sender composes a message (“Hello!”).
+* The Sender encrypts the message with an encryption key. +
+  In this example the encryption key is the string “b1Ag#m3E!g”. +
+	The encryption key is a parameter of the encryption algorithm.
+* The encrypted message is transferred to the Receiver.
+* The Receiver decrypts the encrypted message. +
+	The Receiver uses the same key as the Sender used to encrypt the message with, that is the string “b1Ag#m3E!g”. The
+	encryption key is a parameter of the decryption algorithm.
+
+== Public Key
+
+A public key is a type of parameter of a cryptographic algorithm. Such a key can be used to encrypt messages intended
+for a specific receiver but can also be used to verify digital signatures. As the name indicates, a public key is not
+secret and may be distributed to anyone. For each public key there is a corresponding private key – these two types of
+keys are actually created in pairs.
+
+== Private Key
+
+Like a public key, a private key is also a type of parameter of a cryptographic algorithm. The private key is, however,
+to be kept secret and must not be distributed. The use of private keys are somewhat different from that of public keys;
+private keys are used to decrypt messages encrypted with the public key that belongs to the same key-pair. Private keys
+can also be used to create digital signatures, something that will be explained below. A private key is created when a
+key-pair consisting of a public and a private key is created.
+
+== Assymmetric Cryptography
+
+Asymmetric cryptography, also referred to as cryptography with public keys, was invented in the mid 1970s. It is a group
+of cryptographic algorithms that require two cryptographic keys; one public key and one private key. If a public key was
+used to encrypt a message, then only the corresponding private key can be used to decrypt the message.
+
+The following illustration shows one example of how asymmetric cryptography may be used:
+
+image::images/Asymmetric-Cryptography.jpg[]
+
+_Asymmetric cryptography; a public key is used to encrypt the message and the corresponding private key is used to
+decrypt the message._
+
+* The Receiver creates a pair of cryptographic keys consisting of a public key (blue) and a private key (orange).
+* The Receiver sends his public key to the Sender.
+* The Sender composes a message.
+* The Sender encrypts the message using the Receiver’s public key.
+* The encrypted message is transferred to the Receiver.
+* The Receiver decrypts the message using his private key.
+
+== Cryptographic Hash-Function
+
+A cryptographic hash-function is a function that, given a message of arbitrary length, calculates a value of a given
+length – a hash-value. The hash-value depends on the contents of the message fed into the hash-function and if the same
+message is given to the same hash-function twice, the result will be two identical values.
+
+Cryptographic hash-functions should have the following properties:
+
+* A hash-value should be easy to calculate for an arbitrary message.
+* Given a hash-value, it should be difficult, or better yet impossible, to calculate the message that was used to
+  calculate the hash-value.
+* Given a hash-value, it should be difficult to find a message, other than the message that was used to calculate the
+  hash-value, that results in the same hash-value.
+* There should be no patterns in the hash-values produced by one and the same hash-function.
+* It would not be desirable to, for instance, be able to see the length of the in-data in the hash-value.
+* It should not be possible to modify a message in a way that does not change the hash-value of the message.
+
+The following table shows hash-values for some strings calculated using the SHA512 cryptographic hash-function:
+
+[source,]
+----
+[table nl=”~~”]String,SHA512 Hash-value
+abc,ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee~~64b55d39a2192992a274fc1a836ba3c23a3feebbd454d4423643ce8~~0e2a9ac94fa54ca49f
+abd,1a9840c27a5cf22dab060cdd8a83da2b0fbcb1aeb52d4f9d3894b63~~9083e205a5ab3f6afaeeb21b8e99b5e0fe93daafaabeef274da5d6ead~~cc9db36e5b6f64c4
+This is a complete sentence that consists of several words.,57a6fe5d76c017fd5916b66ecbeac6dc1db13bf1c5eab2496ed9489~~c9babf12b5e43a84b412d2e41394a0c75c6c4c7d2d0f11d3366931f~~ec6efa2405aa91a89d[/table]
+----
+
+== Digital Certificate
+
+A digital certificate consists of a public key and data that can be used to verify the owner of the public key. Some
+examples of the data contained in a digital certificate are:
+
+* Version.
+* Subject.
+	** The owner, a person, company or some other type of entity, of the public key.
+* Certificate issuer.
+	** The organization that issued the certificate and that has verified the owner of the certificate.
+* Serial number.
+	** A number that can be used to uniquely identify the certificate.
+* Validity period.
+	** Date and time of the start and end of the period of time during which the certificate is valid.
+* Signature.
+	** Digital signature (see below) of the certificate issuer.
+* Signature algorithm.
+	** The type of algorithm used to create the signature of the certificate.
+* A public key.
+
+Thus, given a digital certificate, I can identify the owner of the certificate and also identify the certificate issuer.
+
+== Digital Signature
+
+A digital signature is a hash-value of some document or message that has been encrypted using someone’s private key.
+
+One use case for digital signatures is when someone wants to transmit a message, which may be encrypted or not, and the
+recipient of the message wants to confirm that the message is indeed from a particular sender and that the received
+message is identical to the message that was sent.
+
+Digital signatures are also used as means of verification that a person either has produced some digital document or has
+been given access to the document.
+
+If the person is the sender, he/she signs the document using his/her private key.
+
+If the person is obliged to read a digital document, the person creates a digital signature using his/her private key
+and appends it to the digital digital signatures being distributed with the document.
+
+The following figure shows how a message is signed using a digital signature:
+
+
+
+_Signing a message using a digital signature._
+
+Since the document is signed using private key(s), anyone with access to the corresponding public keys can decrypt the
+hash-value, which then also can be verified against the hash-value of the document to ascertain that the document has
+not been altered since it was signed. Depending on which public key(s) were used to decrypt the signature(s) of the
+document, one can also determine who have signed the document.
+
+This figure shows how the signature of a digitally signed document is verified:
+
+
+
+_Verifying a digitally signed message or document._
+
+== Certificate Authority
+
+A certificate authority, CA for short, is a trusted organization that issues certificates – a certificate issuer.
+
+The certificate authority has (at least) a public key, which is made available to anyone, as common with public keys. In
+addition the certificate authority provides a service where persons and companies can have their certificates signed
+with the certificate authority’s private key.
+
+Since the certificate authority is trusted and since the certificate authority’s digital signature in digital
+certificates signed by the certificate authority can be verified using the certificate authority’s public key, trust is
+to extend to include these digital certificates.
+
+Certificate authorities also store public keys and information about the owners of the public keys.
+
+image::images/Certificate-Authority.jpg[]
+
+_The role of a certificate authority in the interaction between a bank and its customer._
+
+The figure above shows the role of a certificate authority in the interaction between a bank’s customer and some server
+of the bank.
+
+When a customer connects to the bank’s server from his/her browser, the browser receives the bank’s certificate as part
+of the initial handshake. The bank’s certificate has been signed by some certificate authority. The browser contain the
+public keys of trusted certificate authorities. The browser will, also as part of the handshake with the bank’s server,
+examine the received certificate, locate the appropriate public key and, using the public key, verify the signature in
+the certificate.
+
+If no appropriate trusted public key is found or if the signature verification failed for some other reason, the browser
+will notify the bank customer. If the certificate signature were verified, the bank customer can be assured that he/she
+is connected to a server which is indeed the bank’s and communication between the bank customer’s browser and the bank
+server will proceed.
+
+== Self-Signed Certificates
+
+A certificate which has been signed using the corresponding private key is called a self-signed certificate. Thus the
+owner of the public key vouches for his/her own identity. Self-signed certificates can easily be created and may be of
+less value, as far as trust is concerned, depending on the issuing organization.
+
+== Root Certificate
+
+A root certificate is a digital certificate, that is either self-signed or not signed at all, which has been issued by a
+certificate authority that has the highest degree of trust. Root certificates are used to sign other certificates, as to
+confirm the owner of those certificates.
+
+If some person or entity that trusts the root certificate receives another certificate which is signed by a certificate
+which path up the certificate chain ends in the root certificate, then this person or entity can trust the other
+certificate.
+
+== Java Keystore
+
+A Java keystore is a file that may contain an arbitrary number of digital certificates. Certificates in a keystore may,
+in addition to public keys, also contain private keys.
+
+Keystores are used, for instance, by servers communicating over HTTPS to store their own private key.
+
+== Java Truststore
+
+A Java truststore is keystore that contains certificates which only contain public keys.
+
+Truststores can be used by clients communicating over HTTPS to store the digital certificates belonging to trusted
+servers.
+
+== HTTPS
+
+HTTPS is communication using the HTTP protocol with transport security, that is, encryption added.
+
+There are two types of HTTPS connections and the difference is in the handshake performed before the actual
+communication starts. The following are simplified descriptions of what happens during the handshake process of these
+two types of HTTPS connections:
+
+With plain HTTPS, the server sends its certificate to the client when performing the initial handshake. The client
+examines this certificate to see whether it has been signed by a trusted certificate authority or if the server’s public
+key is present in the clients truststore.
+
+image::images/HTTPS-No-Client-Authentication.jpg[]
+
+_HTTPS without client authentication; a client requests a web-page from a server._
+
+When using HTTPS with mutual authentication, not only does the server sends its certificate to the client but the client
+also sends its certificate to the server. Both the client and the server checks the received certificates to determine
+whether they are trusted or not and the communication link will only be established if both the server trust the client
+and the client trusts the server.
+
+image::images/HTTPS-Mutual-Authentication.jpg[]
+
+_HTTPS with mutual authentication; a client requests a web-page from a server._

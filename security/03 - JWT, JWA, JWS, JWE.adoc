@@ -1,0 +1,11 @@
+
+= 03 - JWT, JWA, JWS, JWE
+
+== JSON Web Algorithms (JWA)
+
+Abstract
+
+This specification registers cryptographic algorithms and identifiers to be used with the JSON Web Signature (JWS), JSON
+Web Encryption (JWE), and JSON Web Key (JWK) specifications.  It defines several IANA registries for these identifiers.
+
+* https://tools.ietf.org/html/rfc7518

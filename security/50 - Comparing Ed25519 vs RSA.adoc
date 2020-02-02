@@ -1,0 +1,60 @@
+
+= 50 - Comparing Ed25519 vs RSA
+
+[mentve: '20-02-01]
+
+[TIP]
+====
+A kommentekben ven egy kis vita hogy érdemes-e vagy sem nagyobb kulcsokkal távolabbra lőni időben.
+====
+
+https://security.stackexchange.com/questions/90077/ssh-key-ed25519-vs-rsa
+
+== Q
+
+A lot of people recommend using Ed25519 instead of RSA keys for SSH.
+
+The introduction page of Ed25519 (http://ed25519.cr.yp.to/) says:
+[..] breaking it has similar difficulty to breaking [..] RSA with ~3000-bit keys [..]
+
+So speaking only of security (not speed!), why should one not prefer RSA 4096 over Ed25519?
+If Ed25519 only provides ~3000 bit key strength, RSA with 4096 bit should be much more secure?
+
+== A
+
+Key strengths, and their equivalences, become meaningless when they reach the zone of "cannot be broken with existing
+and foreseeable technology", because there is no such thing as more secure than that. It is a common reflex to try to
+think of key sizes as providing some sort of security margin, but this kind of reasoning fails beyond some point.
+
+Basically, the best known algorithms for breaking RSA, and for breaking elliptic curves, were already known 25 years
+ago. Since then, breaking efficiency has improved because of faster computers, at a rate which was
+http://en.wikipedia.org/wiki/Moore%27s_law[correctly predicted]. It is a tribute to researchers that they could, through
+a lot of fine tuning, keep up with that rate, as shown on this graph:
+
+image::./images/VSwml.png[]
+
+(extracted from this answer).
+
+The bottom-line is that while a larger key offers longer predictable resistance, this kind of prediction works only as
+long as technology improvements can be, indeed, predicted, and anybody who claims that he knows what computers will be
+able to do more than 50 years from now is either a prophet, a madman, a liar, or all of these together.
+
+50 years from now, the optimistic formula given in the answer quoted above ((year - 2000) * 32 + 512) means that, at
+best, RSA records could contemplate approaching 2592 bits.
+
+The conclusion is that there is no meaningful way in which 3000-bit and 4000-bit RSA keys could be compared with each
+other, from a security point of view. They both are "unbreakable in the foreseeable future". A key cannot be less broken
+than not broken.
+
+An additional and important point is that "permanent" keys in SSH (the keys that you generate and store in files) are
+used only for signatures. Breaking such a key would allow an attacker to impersonate the server or the client, but not
+to decrypt a past recorded session (the actual encryption key is derived from an ephemeral Diffie-Hellman key exchange,
+or an elliptic curve variant thereof). Thus, whether your key could be broken, or not, in the next century has no
+importance whatsoever. To achieve "ultimate" security (at least, within the context of the computer world), all you need
+for your SSH key is a key that cannot be broken now, with science and technology as they are known now.
+
+Another point of view on the same thing is that your connections can only be as secure as the two endpoints. Nothing
+constraints your enemies, be they wicked criminals, spies or anything else, to try to defeat you by playing "fair" and
+trying to break your crypto upfront. Hiring thousands upon thousands of informants to spy on everybody (and on each
+other) is very expensive, but it has been done, which is a lot more than can be said about breaking a single RSA key of
+2048 bits.

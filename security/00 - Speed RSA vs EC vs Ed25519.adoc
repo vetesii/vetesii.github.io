@@ -1,0 +1,89 @@
+
+= 00 - Speed RSA vs EC vs Ed25519
+
+== _Részlet_ - https://connect2id.com/blog/nimbus-jose-jwt-6
+
+Asymmetric RSA and EC cryptography comes at a cost. Its overhead can be a limiting factor in how quickly an OpenID
+Connect / OAuth 2.0 server can mint tokens, and client applications and protected resources can validate them. This new
+6.0 release of the Nimbus JOSE+JWT library introduces support for high-performance public key cryptography based on the
+Ed25519 and X25519 algorithms. The https://bitbucket.org/connect2id/curve-25519-benchmarks/[benchmarks] showed
+signatures with Ed25519 receiving a 62x boost over 2048-bit RSA, with verification remaining roughly on par.
+
+[width="100%",options="header"]
+|====================
+| Operation | Ed25519 		| RSA 2048 | ECDSA P-256
+| Sign 		| 14635 ops/s 	| 236 ops/s | 1083 ops/s
+| Verify 	| 5065 ops/s 	| 8598 ops/s | 687 ops/s
+|====================
+
+(_Fent van linkként a szövegben is, de_ https://bitbucket.org/connect2id/curve-25519-benchmarks/src/master/)
+
+== Forrás 1
+
+https://www.quora.com/How-much-faster-can-encryption-and-signing-be-with-an-elliptic-curve-EC-certificate-compared-to-an-RSA-certificate
+
+We first need to determine equivalent key lengths, to ensure a fair comparison. OpenSSL says[1] to use the following
+approximate equivalences:
+
+[source,]
+----
+  RSA => ECDSA
+ 1024 => 160
+ 2048 => 224
+ 3072 => 256
+ 7680 => 384
+15360 => 512
+----
+
+The openssl command-line tool also has a helpful benchmarking command called speed. Let’s see what it says about signing
+performance, eliding unnecessary stuff:
+
+[source,]
+----
+$ openssl speed
+
+                  sign    verify    sign/s verify/s
+rsa 1024 bits 0.000118s 0.000007s   8464.7 136410.1
+rsa 2048 bits 0.000561s 0.000025s   1783.1  40764.8
+rsa 4096 bits 0.005938s 0.000089s    168.4  11194.9
+
+                              sign    verify    sign/s verify/s
+ 160 bit ecdsa (secp160r1)  0.0001s   0.0002s  16173.3   5905.4
+ 224 bit ecdsa (nistp224)   0.0001s   0.0001s  12410.4   7839.6
+ 256 bit ecdsa (nistp256)   0.0001s   0.0001s  16268.6  11458.9
+ 384 bit ecdsa (nistp384)   0.0002s   0.0007s   4765.4   1434.2
+ 521 bit ecdsa (nistp521)   0.0004s   0.0006s   2644.5   1703.9
+----
+
+Notice anything interesting?
+
+ECDSA is clearly faster for signing, but surprising slow in verification. RSA’s performance tanks very rapidly with key
+size, while ECDSA degrades more gracefully The largest ECDSA key I listed (521 bits) still performs decently, while
+OpenSSL doesn’t even support RSA’s equivalent (15360 bits), probably because it’ll take too long. Now, you might be
+tempted to say “well, I plan to do a lot of batch signing, so I should go with ECDSA”, or “well, I plan to do a lot of
+batch verification, so I should go with RSA”.
+
+That’s not how I’d make this decision. For me, ECDSA is the future of PK signatures, so even though it doesn’t have the
+maturity or adoption of RSA, I’d actively test them side-by-side on a production basis, perhaps leaning on RSA for now,
+but definitely looking towards ECDSA migration at some point.
+
+As for RSA-vs EC encryption, this is generally limited on both sides to secret key exchange, i.e. encrypting/decrypting
+a few data chunks under 1KB each. I won’t bother breaking down the relevant parts of the openssl speed output, because
+for infrequent payloads of this size, any speed differential is simply irrelevant. Choose whichever algorithm is
+supported by the parties you’re communicating with.
+
+Further Reading:
+
+* Comparing ECDSA vs RSA - SSL.com
+* Signatures: RSA compared to ECDSA
+* Speed Comparison of Popular Crypto Algorithms (Crypto++)
+* ECRYPT Public Key Signature Benchmarks (you’ll probably need this glossary that explains each crypto primitive listed
+  in the benchmarks)
+
+== https://www.cryptopp.com/benchmarks.html
+
+== https://bench.cr.yp.to/results-sign.html
+
+== https://bench.cr.yp.to/primitives-sign.html
+
+A https://bench.cr.yp.to/results-sign.html értelmezéséhez is kellhet.

@@ -1,0 +1,215 @@
+
+= OpenSSL Playground
+
+[@ https://gist.github.com/rustymagnet3000] [mentve: '20-02-01]
+
+https://gist.github.com/rustymagnet3000/e1bad38d30827e2f9f68bedc7534084d
+
+=== Verify downloaded file
+
+```
+➜  openssl dgst -sha256 openssl-1.1.1.tar.gz
+SHA256(openssl-1.1.1.tar.gz)= 2836875a0f89c03d0fdf483941512613a50cfb421d6fd94b9f41d7279d586a3d
+➜  cat openssl-1.1.1.tar.gz.sha256
+2836875a0f89c03d0fdf483941512613a50cfb421d6fd94b9f41d7279d586a3d
+```
+
+=== RSA Public Key pad and encrypt
+
+```
+echo 'Hi Alice!' | openssl rsautl -encrypt -pubin -oaep -inkey public_key.pem >message.bin
+
+// It is always padded to 256 characters, with an 2048 key
+// The standard defines random padding with each encrypt API call
+// https://en.wikipedia.org/wiki/Optimal_asymmetric_encryption_padding
+```
+
+=== Read ciphertext as Hex chars
+
+```
+xxd -ps -l 256 message.bin
+```
+
+=== Decrypt with RSA Private Key, from binary ciphertext
+
+```
+openssl rsautl -decrypt -in enc_message.bin -inkey private_key.pem -oaep
+openssl rsautl -decrypt -in enc_message.bin -inkey private.pem -oaep > plaintext.txt
+```
+
+=== Decrypt with DES
+
+```
+echo U2FsdGVkX18ztmw81FTK/c+jAf8xtcZdIpesuV2PLDM= | openssl enc -base64 -d | openssl des -d
+// `pass` when prompted
+```
+
+=== Convert from ciphertext from hex to ciphertext
+
+```
+xxd -r -p hex.message.enc enc_message.bin
+```
+
+=== Base64 operations
+
+```
+cat enc_message.hex | base64 --decode > enc_message.bin
+openssl base64 -in key_pt.bin -out key_b64_pt.txt
+```
+
+== Key Pairs
+
+```
+openssl genrsa -out private.pem 2048   // add the -des3 flag to encrypt Private Key
+openssl rsa -in private.pem -outform PEM -pubout -out public.pem // extract pub key
+```
+
+=== Convert private key file to PEM file
+
+```
+openssl pkcs12 -in mycaservercert.pfx -nodes -nocerts -out mycaservercertkey.pem
+// you will be prompted for password
+```
+
+=== Print EC private key & extract public key
+
+```
+openssl ec -inform PEM -in private.pem -text -noout
+openssl ec -in private.pem -pubout -out pubkey.pem
+```
+
+=== Read EC public key
+
+```
+cat pubkey.pem
+openssl ec -inform PEM -pubin -in pubkey.pem -text -noout
+```
+
+=== Print RSA private key & extract public key
+
+```
+openssl rsa -inform PEM -in private.pem -text -noout
+openssl rsa -in private.pem -pubout -out pubkey.pem
+```
+
+=== Print the entire certificate
+
+```
+openssl x509 -in stackexchangecom.crt -text -noout
+```
+
+== Certificates
+
+Downloaded the leaf certificate from Stackoverflow.com.
+
+=== Print the entire certificate
+
+```
+openssl x509 -in stackexchangecom.crt -text -noout
+```
+
+=== Create own cert from Private key
+
+Use own private key to generate a self-signed certificate with it.  This command creates a self-signed certificate
+(domain.crt) from an existing private key (domain.key):
+
+```
+openssl req -key priv_1024.pem -new -x509 -days 365 -out domain.crt
+```
+
+=== Extract Public Key from Cert as PEM file
+
+```
+openssl x509 -pubkey -noout -in stackexchangecom.crt > pubkey.pem
+```
+
+=== Print public key only
+
+```
+openssl rsa -inform PEM -pubin -in pubkey.pem -text -noout
+
+Public-Key: (2048 bit)
+Modulus:
+    00:af:46:03:ce:c7:13:e6:2e:93:d8:56:91:b1:31:
+    8d:0a:22:c1:f0:eb:4f:5e:ef:0d:f6:20:32:b9:a4:
+    4e:87:f9:d2:d2:44:51:b0:df:30:50:c9:35:4e:68:
+    19:84:fb:98:33:aa:05:4b:7e:fb:57:c5:b6:2e:a8:
+    4b:04:ca:cf:5e:2e:e5:9e:1b:ca:b7:60:c5:58:2c:
+    b0:df:c4:6b:0d:b1:2c:33:97:73:54:61:2b:9a:1b:
+    b1:dc:5d:10:a9:c4:c8:f7:6c:e3:55:6e:b5:0e:61:
+    3b:35:24:0b:89:1e:32:a2:75:69:4e:97:40:68:ee:
+    23:48:f2:71:9f:c7:7e:e2:9d:6c:22:55:36:24:64:
+    a4:f0:b6:52:58:5a:9a:44:e7:3b:2a:d5:ed:95:63:
+    f8:1d:a8:4d:45:9b:5d:c2:f2:f9:74:81:06:18:d5:
+    b1:fb:b0:7e:5d:50:1f:63:5c:a0:73:f5:22:b2:57:
+    64:03:e6:b7:0f:6f:b7:58:0b:57:80:56:51:65:9f:
+    f5:09:61:63:29:62:4d:30:02:3a:64:10:2d:95:b8:
+    12:36:04:58:c5:d7:1d:95:e2:21:3c:b0:b3:93:35:
+    b2:b1:f9:6d:7e:20:66:b2:68:33:e9:50:a8:15:1e:
+    0a:80:9a:3c:19:dd:cc:79:35:a8:8c:1b:61:33:5d:
+    12:2f
+Exponent: 65537 (0x10001)
+```
+
+=== Strip the Generic Header and Footer
+
+```
+awk '{if (NR!=9 && NR!=1) {print}}' pubkey.pem
+
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAr0YDzscT5i6T2FaRsTGN
+CiLB8OtPXu8N9iAyuaROh/nS0kRRsN8wUMk1TmgZhPuYM6oFS377V8W2LqhLBMrP
+Xi7lnhvKt2DFWCyw38RrDbEsM5dzVGErmhux3F0QqcTI92zjVW61DmE7NSQLiR4y
+onVpTpdAaO4jSPJxn8d+4p1sIlU2JGSk8LZSWFqaROc7KtXtlWP4HahNRZtdwvL5
+dIEGGNWx+7B+XVAfY1ygc/UisldkA+a3D2+3WAtXgFZRZZ/1CWFjKWJNMAI6ZBAt
+lbgSNgRYxdcdleIhPLCzkzWysfltfiBmsmgz6VCoFR4KgJo8Gd3MeTWojBthM10S
+LwIDAQAB
+```
+
+=== Extract Public Key from Cert in Hex format
+
+```
+openssl x509 -modulus -noout < stackexchangecom.crt | sed s/Modulus=//
+
+AF4603CEC713E62E93D85691B1318D0A22C1F0EB4F5EEF0DF62032B9A44E87F9D2D24451B0DF3050C9354E681984FB9833AA054B7EFB57C5B62EA84B04CACF5E2EE59E1BCAB760C5582CB0DFC46B0DB12C33977354612B9A1BB1DC5D10A9C4C8F76CE3556EB50E613B35240B891E32A275694E974068EE2348F2719FC77EE29D6C2255362464A4F0B652585A9A44E73B2AD5ED9563F81DA84D459B5DC2F2F974810618D5B1FBB07E5D501F635CA073F522B2576403E6B70F6FB7580B57805651659FF509616329624D30023A64102D95B812360458C5D71D95E2213CB0B39335B2B1F96D7E2066B26833E950A8151E0A809A3C19DDCC7935A88C1B61335D122F
+```
+
+== Nginx Self-Signed Cert
+
+In my Nginx `reverse proxy` I had the following `Certificate Chain` setup and working.
+
+```
+server {
+   listen       443 ssl;
+   server_name  rustymachine.local;
+
+   ssl_certificate      /rustymachine/Certificates/nginx/cert_chain.pem;
+   ssl_certificate_key  /rustymachine/Certificates/nginx/rustymachine.local.priv.pem;
+```
+
+It worked fine with `Firefox` and `Safari` on macOS.  But `Chrome` gave: `Error: "Subject Alternative Name Missing"`.
+Despite having a `trusted` Cert Chain (`Root CA`, `Int CA`), Chrome stopped the page loading.
+
+To re-generate the files required by `Nginx`, I used the same `Root CA`, `Int CA` and focused on a new `leaf` that had a
+`Subject Alternative Name`.  I used `Keychain`.  See the picture below.
+
+Once you exported the Private Key, I then created a `certificate chain`.
+
+```
+cat leaf_cert.pem > cert_chain.pem
+cat int_ca_cert.pem >> cert_chain.pem
+cat root_ca_cert.pem >> cert_chain.pem
+```
+
+A quick stop and start of nginx would apply the new Private Key and Certificate Chain.
+
+```
+sudo nginx -s stop
+sudo nginx
+```
+
+=== Reference
+
+https://rietta.com/blog/2012/01/27/openssl-generating-rsa-key-from-command/
+https://www.guyrutenberg.com/2009/01/01/extract-public-key-from-x509-certificate-as-hex/
+https://www.digitalocean.com/community/tutorials/openssl-essentials-working-with-ssl-certificates-private-keys-and-csrs
+https://crypto.stackexchange.com/questions/42097/what-is-the-maximum-size-of-the-plaintext-message-for-rsa-oaep

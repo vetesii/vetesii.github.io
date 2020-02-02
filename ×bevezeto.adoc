@@ -5,3 +5,22 @@
 
 Errefelé taláod meg a lokálisan eltett asciidoc jegyzeteim automatikusan konvertált és Confluence  push-olt változásait.
 Érdemes figyelembe venned, hogy az itt megírt hozzászólásaid el fognak veszni a következő push alatt.
+
+[TIP]
+====
+Kifejezetten sok offline-ba - formázás - nélkül lementett anyagot találasz. Ezek *_nem_* saját munkák, leírások, hanem
+nem valamilyen szempontból jó anyagok, amelyekből sokat tanultam és vagy az aktív munka során is szeretném visszanézni.
+====
+
+Ezek offline másolata azért készült, mert volt már hogy fontos információkat tartalmazó elmentett forrásom szünt meg és
+nem olyan nagy szám ezeket formázás nélkül lementeni, főleg mivel ilyenkor még majdnem egy teljes egészszer elolvasom az
+anyagot.
+
+WARNING: Alapvetően azt ajánlom, hogy ha teheted, a leírások elején található linkelt, eredeti online forrást használd
+minden esetben, mivel nem sűrűn frissítem - nem is lenne könnyű -, ráadásul kommenteket sem sűrűn másolom be az offline
+anyagba.
+
+== Szabályok
+
+* a képek és egyéb belső linkelt erőforrásnál nincs szóköz a nevekben, mert az AsciiDoc fel tudja használni, de a git
+  LFS már bajlódik vele -> még mindig érdemes tartani az egyszerű fájlnevek felé

@@ -1,0 +1,63 @@
+
+= 20 - Ed448 vs ed25519 - Differences
+
+[mentve: '20-02-01]
+
+https://crypto.stackexchange.com/questions/67457/elliptic-curve-ed25519-vs-ed448-differences
+
+[TIP]
+====
+Mivel van benne képlet, itt főleg érdemes Online megnézni. A sima pontokba szedett rész az érdekes egyszerűbb
+embereknek.
+====
+
+
+== A1
+
+Edwards25519 is the twisted Edwards curve
+
+−x2+y2=1−(121665/121666)x2y2
+
+over the prime field Fp where p=2255−19. The coefficient d=−121665/121666 was chosen to so that this curve is
+birationally equivalent to the Montgomery curve y2=x3+486662x2+x, called Curve25519, whose coefficient 486662 was chosen
+to be the smallest integer in absolute value satisfying the security criteria[1]. The group of Fp-rational points has
+composite order 8p1 for a 253-bit prime p1, and its twist has composite order 4p2 for a 253-bit prime p2. Edwards25519
+is designed to make the cost of a discrete log computation cost at least about 2128 bit operations to break the first of
+any number of targets.
+
+Edwards448, also known as Ed448-Goldilocks, is the twisted Edwards curve
+
+−x2+y2=1−39081x2y2
+
+over the prime field Fp where p=2448−2224−1. The coefficient d=−39081 was chosen to be the smallest integer in absolute
+value satisfying the same security criteria as edwards25519, together with the additional constraint that the order of
+the group of Fp-rational points have order below p, namely 4p1 for a 446-bit prime p1. There is also a birationally
+equivalent Montgomery curve y2=x3+156326x2+x derived from edwards448, called Curve448. Edwards448 is designed to make
+the cost of a discrete log computation cost about 2224 bit operations to break the first of any number of targets. Of
+course, since 2128 bit operations is already infeasible, edwards448 is really a hedge against modest cryptanalytic
+advances.
+
+Ed25519 is specifically an instance of the EdDSA signature scheme[2][3] with edwards25519 as the curve, SHA-512 as the
+hash function, an optional context identifier for compatibility, etc.; likewise Ed448 is an instance of EdDSA with
+edwards448 as the curve, SHAKE256 as the hash function, an obligatory domain identifier, etc. See RFC 8032 for the
+details of EdDSA instantiation, and RFC 7748 for the curve definitions.
+
+The only major substantive differences are in security level and performance:
+
+* *Security level*: Edwards25519 aims for a ‘128-bit security level’, and edwards448 aims for a ‘224-bit “Spinal
+  Tap-grade” security level’—not actually a meaningful difference in the real world unless there is a modest
+  cryptanalytic advance in computing elliptic curve discrete logs.
+* *Key size*: Edwards448 points and scalars are 1.75x the size of edwards25519 points and scalars.
+* *Fixed-base scalar multiplication*: Edwards448 costs about 1.5x what edwards25519 costs.
+* *Variable-base scalar multiplication*: Edwards448 costs about 5x what edwards25519 costs.
+  * (See SUPERCOP dh and sign for details.)
+
+Edwards25519 has p≡1(mod4) while edwards448 has p≡3(mod4), so there are some differences in protocols beyond DH and
+signing, but not really substantive: for encoding points indistinguishably from uniform random strings, edwards25519
+supports only Elligator 2, while edwards448 supports Elligator 1 and Elligator 2[4], but I don't know of any advantages
+to Elligator 1; both support a prime-order group encoding that avoids pitfalls with cofactors[5], with a couple of
+different software implementations, Ristretto and libdecaf. Both curves are designed for traditional discrete log
+applications and pass the SafeCurves criteria; neither curve is pairing-friendly.
+
+*In brief, the two curves were designed with essentially the same qualitative security criteria and differ only on
+quantitative security level and performance.*

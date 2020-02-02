@@ -1,0 +1,10 @@
+
+= 00 - cr.yp.to
+
+**Had ne kelljen bemutatnom**. Még ha kicsit fapadosnak is érzed, előbb-utóbb rájössz hogy egy rakat információ itt van
+meg validan.
+
+* https://bench.cr.yp.to/index.html
+* https://bench.cr.yp.to/primitives-sign.html
+* https://bench.cr.yp.to/supercop.html
+* http://ed25519.cr.yp.to/

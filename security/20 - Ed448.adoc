@@ -1,0 +1,6 @@
+
+= 20 - Ed448
+
+* https://tools.ietf.org/html/rfc8032
+* https://tools.ietf.org/html/rfc8037
+* https://en.wikipedia.org/wiki/Curve448
