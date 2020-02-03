@@ -1,0 +1,138 @@
+
+= 05 - Ed25519
+
+[mentve: '20-02-02]
+
+https://connect2id.com/blog/nimbus-jose-jwt-6
+
+== High-performance Ed25519 and X25519 cryptography comes to Nimbus JOSE+JWTs
+
+Asymmetric RSA and EC cryptography comes at a cost. Its overhead can be a limiting factor in how quickly an OpenID
+Connect / OAuth 2.0 server can mint tokens, and client applications and protected resources can validate them. This new
+6.0 release of the Nimbus JOSE+JWT library introduces support for high-performance public key cryptography based on the
+Ed25519 and X25519 algorithms. The benchmarks showed signatures with Ed25519 receiving a 62x boost over 2048-bit RSA,
+with verification remaining roughly on par.
+
+[width="100%",options="header"]
+|====================
+| Operation | Ed25519 		| RSA 2048 | ECDSA P-256
+| Sign 		| 14635 ops/s 	| 236 ops/s | 1083 ops/s
+| Verify 	| 5065 ops/s 	| 8598 ops/s | 687 ops/s
+|====================
+
+Edwards-curve cryptography was defined for JOSE in RFC 8037, the last specification to come out of the working group.
+The standard Java Cryptography Architecture (JCA) still lacks Edwards-curve cryptography support, which meant we had to
+find a suitable external Ed25519 / X25519 implementation and integrate it directly, without the help of JCA
+abstractions. For that we chose Google's Tink, which is written entirely in Java and is already mature enough to be used
+in production.
+
+To use Ed25515 and X25519 for JOSE you need to include the Tink dependency, which is marked as optional, in your Maven
+project. For Nimbus JOSE+JWT 6.0 that is
+
+[source,xml]
+----
+<dependency>
+    <groupId>com.google.crypto.tink</groupId>
+    <artifactId>tink</artifactId>
+    <version>1.2.0-rc2</version>
+</dependency>
+----
+
+Edwards-curve cryptography in JOSE requires a new type of key called octet key pair (OKP). To generate such a JWK of
+type OKP just specify the curve name and any key metadata required by your application:
+
+[source,java]
+----
+import java.util.*;
+
+import com.nimbusds.jose.jwk.*;
+import com.nimbusds.jose.jwk.gen.*;
+
+// Generate Ed25519 Octet key pair (OKP) in JWK format, attach some metadata
+OctetKeyPair jwk = new OctetKeyPairGenerator(Curve.Ed25519)
+    .keyUse(KeyUse.SIGNATURE) // indicate the intended use of the key
+    .keyID(UUID.randomUUID().toString()) // give the key a unique ID
+    .generate();
+
+// Output OKP
+System.out.println(jwk);
+
+// Output public key only
+System.out.println(jwk.toPublicJWK());
+----
+
+Example Ed25519 key in JWK format with public x parameter, private d parameter and metadata:
+
+[source,json]
+----
+{
+  "kty" : "OKP",
+  "crv" : "Ed25519",
+  "x"   : "11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo",
+  "d"   : "nWGxne_9WmC6hEr0kuwsxERJxWl7MmkZcDusAxyuf2A"
+  "use" : "sig",
+  "kid" : "FdFYFzERwC2uCBB46pZQi4GG85LujR8obt-KWRBICVQ"
+}
+----
+
+Here is a code snippet showing signing and validation of a JSON Web Token (JWT) secured with Ed25519:
+
+[source,java]
+----
+import java.util.Date;
+
+import com.nimbusds.jose.*;
+import com.nimbusds.jose.crypto.*;
+import com.nimbusds.jose.jwk.*;
+import com.nimbusds.jose.jwk.gen.*;
+import com.nimbusds.jwt.*;
+
+
+// Create the EdDSA signer with the generated OKP
+JWSSigner signer = new Ed25519Signer(jwk);
+
+// Prepare JWT with claims set
+JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+    .subject("alice")
+    .issuer("https://c2id.com")
+    .expirationTime(new Date(new Date().getTime() + 60 * 1000))
+    .build();
+
+SignedJWT signedJWT = new SignedJWT(
+    new JWSHeader.Builder(JWSAlgorithm.Ed25519).keyID(jwk.getKeyID()).build(),
+    claimsSet);
+
+// Compute the EC signature
+signedJWT.sign(signer);
+
+// Serialize the JWS to compact form
+String s = signedJWT.serialize();
+
+// On the consumer side, parse the JWS and verify its EdDSA signature with the
+// public OKP
+signedJWT = SignedJWT.parse(s);
+
+JWSVerifier verifier = new Ed25519Verifier(publicJWK);
+assertTrue(signedJWT.verify(verifier));
+
+// Retrieve / verify the JWT claims according to the application requirements
+assertEquals("alice", signedJWT.getJWTClaimsSet().getSubject());
+assertEquals("https://c2id.com", signedJWT.getJWTClaimsSet().getIssuer());
+assertTrue(new Date().before(signedJWT.getJWTClaimsSet().getExpirationTime()));
+----
+
+=== Release notes
+
+version 6.0 (2018-08-07)
+
+* Adds an Ed25519Signer and Ed25519Verifier for EdDSA with an Ed25519 curve (RFC 8037, section 3.1). Requires the
+  optional com.google.crypto.tink:tink:1.2.0-rc2 dependency.
+* Adds an X25519Encrypter and X25519Decrypter for ECDH-ES key agreement with an X25519 curve (RFC 8037, section 3.2).
+  Requires the optional com.google.crypto.tink:tink:1.2.0-rc2 dependency.
+* Adds an OctetKeyPairGenerator for generating JSON Web Keys (JWT) of type "OKP" with Ed25519 and X25519 curves.
+* Breaking change: The ephemeral public key (epk) in JWEHeader is now represented by the more general JWK class instead
+  of ECKey which only allowed EC JWKs. The change was necessary to implement ECDH-ES key agreement with an Octet Key
+  Pair (OKP) JWK.
+* Refactors the Base64 and Base64URL codec utilities to prevent potential cache timing attacks due to use of table
+  lookups. The Base64URL utility is used to decode the encrypted key portion in a JWE object (iss #270).
+* Fixes Maven build so that the output JDK 1.7 JAR has 1.7 classes and not 1.6 (iss #271).

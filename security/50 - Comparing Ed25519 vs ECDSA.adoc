@@ -1,0 +1,21 @@
+
+= 50 - Comparing ECDSA vs RSA
+
+== https://security.stackexchange.com/a/74041/226177
+
+[TIP]
+====
+Nem hátrény ha valid, vagyis definició szinten kivéd dolgokat.
+====
+
+
+[quote,https://security.stackexchange.com/users/5701/lxgr]
+____
+There is an important practical advantage of Ed25519 over (EC)DSA: The latter family of algorithms completely breaks
+when used for signatures together with a broken random number generator. Such a RNG failure has happened before and
+might very well happen again.
+
+Theoretically, implementations can protect against this specific problem, but it is much harder to verify that both ends
+are using a correct implementation than to just prefer or enforce (depending on your compatibility needs) an algorithm
+that explicitly specifies secure behavior (Ed25519).
+____

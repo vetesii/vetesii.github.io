@@ -1,3 +1,12 @@
 
 = Security
 
+Ha tehetek egy ajánlást számodra: két cikkel kezd az ismerkedés
+
+* https://smallstep.com/blog/everything-pki/
+* https://medium.facilelogin.com/jwt-jws-and-jwe-for-not-so-dummies-b63310d201a3
+
+Zseniális cikkek és jó nyelvezettel írták meg őket. Nem fogsz mindent érteni, de itt-ott még olvaosol ezt-azt, elolvasod
+megint ezeket és még többet fogsz érteni és összekapcsolni magadban.
+
+(_Mindkettő megtalálható offline lementve, sőt ezeknél még a formázást is pótolni fogom..._)

@@ -1,0 +1,49 @@
+
+= NginX docker
+
+== Bitnami NGINX
+
+Ha nem csinálsz nagy varázslatot, elegendő a bitnami image: https://github.com/bitnami/bitnami-docker-nginx
+
+* none-root konténer
+* egy rakat ENV-et is felismer beállításként
+* bitnami "szabványos" bővítőhelyek vannak benne
+
+Ha csak statikus fájlokat akarsz kiszolgálni a 8080-as porton, a Dockerfile:
+
+[source,bash]
+----
+FROM bitnami/nginx:1.16-centos-7
+COPY ./dist /app
+----
+
+* 1.16-centos-7 helyett biztos van újabb NGINX és más alapú OS (például debian)
+* a statikus tartalom a Dockerfile-hoz képest a `./dist` mappában van
+
+*Van egy rakat bővítési lehetőség, nézd meg a github-on és saját oldalukon.*
+
+=== Env
+
+[source,yml]
+----
+environment:
+    - NGINX_HTTP_PORT_NUMBER=XXXX
+    - NGINX_HTTPS_PORT_NUMBER=XXXX
+----
+
+== Hivatalos image
+
+_Ezt akkor érdemes használnod, ha jobban képben vagy a működését illetően._
+
+* https://hub.docker.com/_/nginx
+
+### Hiba: 0.0.0.0:80 failed 
+
+[source,]
+----
+nginx: [emerg] bind() to 0.0.0.0:80 failed (13: Permission denied)
+----
+
+Mind a bitnami (ha az ottani 8080-as default port-ot átkonfigurálod), mind a sima image dobhatja (ha 80-as port-on
+hagyod). Alapvetően 1000 alatti port foglalásához nincs elég joga a futtató usernek:
+https://github.com/bitnami/bitnami-docker-nginx/issues/96

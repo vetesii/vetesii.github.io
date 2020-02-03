@@ -1,0 +1,68 @@
+
+= 20 - EC - ECDH vs ECDSA
+
+
+== SO answer - https://security.stackexchange.com/a/211484/226177
+
+Something that no answer so far addressed directly is that your questions mixes several more or less unrelated names
+together as if these were equivalent alternatives to each other which isn't really the case.
+
+ECDH and ECDSA are just names of cryptographic methods.
+
+*ECDH* is a key exchange method that two parties can use to negotiate a secure key over an insecure communication
+channel. It's a variation of the DH (Diffie-Hellman) key exchange method. ECDH stands for Elliptic-curve Diffie–Hellman.
+Yet ECDH is just a method, that means you cannot just use it with one specific elliptic curve, you can use it with many
+different elliptic curves.
+
+*ECDSA* is a signature algorithm that can be used to sign a piece of data in such a way, that any change to the data
+would cause signature validation to fail, yet an attacker would not be able to correctly re-sign data after such a
+change. It is a variation of DSA (Digital Signature Algorithm). ECDSA stands for Elliptic Curve Digital Signature
+Algorithm. Also ECDSA only describes a method which can be used with different elliptic curves.
+
+The security of ECDH and ECDSA thus depends on two factors:
+
+* How secure is the method itself? If the method isn't secure, the best curve in the word wouldn't change that.
+* How secure is the curve being used? If the curve isn't secure, it won't play a role if the method theoretically is.
+
+Curve25519 is the name of a specific elliptic curve. Other curves are named Curve448, P-256, P-384, and P-521.
+
+Ed25519 is the name of a concrete variation of EdDSA. When performing EdDSA using SHA-512 and Curve25519, this variation
+is named Ed25519. EdDSA is a signature algorithm, just like ECDSA.
+
+So if an implementation just says it uses ECDH for key exchange or ECDSA to sign data, without mentioning any specific
+curve, you can usually assume it will be using the NIST curves (P-256, P-384, or P-512), yet the implementation should
+actually always name the used curve explicitly.
+
+To answer your question about security: ECDH and ECDSA have pretty much been proven to be conceptional secure key
+exchange and signing methods, thus the security of ECDH and ECDSA pretty much depends on the fact if someone finds a way
+how to break elliptic cryptography in general (little likely but not impossible) or to find a flaw within the curves
+being used (more likely).
+
+The reason why some people prefer Curve25519 over the NIST standard curves is the fact, that the NIST hasn't clearly
+documented why it has chosen theses curves in favor of existing alternatives. The generic statement "_The curves were
+ostensibly chosen for optimal security and implementation efficiency_" sounds a lot like marketing balderdash and won't
+convince cryptographic experts.
+
+The NIST also standardized a random number generator based elliptic curve cryptography (Dual_EC_DRB) in 2006 and the New
+York times claimed (after reviewing the memos leaked by Edward Snowden) that it was the NSA influencing the NIST to
+standardize this specific random number generator. A huge weaknesses has been discovered in that generator and it is
+believed that it is an intentional backdoor placed by the NSA to be able to break TLS encryption based on that
+generator. The ANSI apparently discovered the weakness when Dual_EC_DRB was first submitted to them but despite being
+aware how to avoid it, they did neither improve the algorithm, nor did they publicize the weaknesses, so it is believed
+that they weren't allowed to (gag order). When the weakness became publicly known, the standard was withdrawn in 2014.
+
+With that background knowledge, of course, people started to wonder if maybe the source of the mysterious NIST curve
+parameters is in fact also the NSA as maybe these curves have also hidden weaknesses that are not publicly known yet but
+the NSA may know about them and thus be able to break cryptography based on these curves. There is no evidence for that
+claim, not even a presumptive evidence but it surely seems possible and more realistic than a fairy tale. That's why
+people lost trust into these curves and switched to alternatives where it is highly unlikely, that these were influenced
+by any secret service around the world.
+
+Curve25519 was published by the German-American mathematician and cryptologist Daniel J. Bernstein in 2005, who also
+designed the famous Salsa20 stream cipher and the now widely used ChaCha20 variant of it. He also invented the Poly1305
+message authentication. Google decided that ChaCha20 in combination with Poly1305 is a secure alternative to be used in
+TLS after RC4 had to be removed because the algorithm has been broken. It requires much less computation power than
+using the AES block chipher (very useful for mobile devices as it saves battery runtime), yet is believed to provide
+comparable security. ChaCha20/Poly1305 is standardized in RFC 7905 and widely used today in TLS client-server
+communication as of today. So if Bernstein was a NSA spy, which is very unlikely, we'd all be doomed already as then TLS
+as it is often used today would probably be useless to protect data from the eyes of secret services.

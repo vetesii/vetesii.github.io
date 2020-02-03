@@ -1,6 +1,10 @@
 
 = 00 - Speed RSA vs EC vs Ed25519
 
+== Online - https://www.imperialviolet.org/2010/12/21/eccspeed.html
+
+https://www.imperialviolet.org/2010/12/21/eccspeed.html
+
 == _Részlet_ - https://connect2id.com/blog/nimbus-jose-jwt-6
 
 Asymmetric RSA and EC cryptography comes at a cost. Its overhead can be a limiting factor in how quickly an OpenID

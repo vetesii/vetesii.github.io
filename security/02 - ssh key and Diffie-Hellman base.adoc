@@ -1,0 +1,36 @@
+
+= 02 - ssh key and Diffie-Hellman base
+
+== Online - https://security.stackexchange.com/questions/50878/ecdsa-vs-ecdh-vs-ed25519-vs-curve25519
+
+=== Q
+
+Among the ECC algorithms available in openSSH (ECDH, ECDSA, Ed25519, Curve25519), which offers the best level of
+security, and (ideally) why?
+
+=== A1
+
+*In SSH, two algorithms are used*: a key exchange algorithm (Diffie-Hellman or the elliptic-curve variant called ECDH)
+and a signature algorithm. The key exchange yields the secret key which will be used to encrypt data for that session.
+The signature is so that the client can make sure that it talks to the right server (another signature, computed by the
+client, may be used if the server enforces key-based client authentication).
+
+ECDH uses a curve; most software use the standard NIST curve P-256. Curve25519 is another curve, whose "sales pitch" is
+that it is faster, not stronger, than P-256. The performance difference is very small in human terms: we are talking
+about less than a millisecond worth of computations on a small PC, and this happens only once per SSH session. You will
+not notice it. Neither curve can be said to be "stronger" than the other, not practically (they are both quite far in
+the "cannot break it" realm) nor academically (both are at the "128-bit security level").
+
+Even when ECDH is used for the key exchange, most SSH servers and clients will use DSA or RSA keys for the signatures.
+If you want a signature algorithm based on elliptic curves, then that's ECDSA or Ed25519; for some technical reasons due
+to the precise definition of the curve equation, that's ECDSA for P-256, Ed25519 for Curve25519. There again, neither is
+stronger than the other, and speed difference is way too small to be detected by a human user. However most browsers
+(including Firefox and Chrome) do not support ECDH any more (dh too).
+
+Using P-256 should yield better interoperability right now, because Ed25519 is much newer and not as widespread. But,
+for a given server that you configure, and that you want to access from your own machines, interoperability does not
+matter much: you control both client and server software.
+
+So, basically, the choice is down to aesthetics, i.e. completely up to you, with no rational reason. Security issues
+won't be caused by that choice anyway; the cryptographic algorithms are the strongest part of your whole system, not the
+weakest.

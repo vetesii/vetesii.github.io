@@ -1,0 +1,5 @@
+
+= 48 - JPA - repository function names
+
+* https://www.baeldung.com/spring-data-derived-queries
+* https://www.petrikainulainen.net/programming/spring-framework/spring-data-jpa-tutorial-introduction-to-query-methods/

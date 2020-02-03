@@ -70,3 +70,12 @@ Print public, private key components(compressed)
 ----
 openssl ec -in secp256k1-key.pem -text -noout -conv_form compressed
 ----
+
+=== Ed25519
+
+public key
+
+[source,bash]
+----
+openssl pkey -in ed25519key.pem -pubout
+----
