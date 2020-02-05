@@ -1,11 +1,9 @@
 
 = 05 - Ed25519
 
-[mentve: '20-02-02]
-
-https://connect2id.com/blog/nimbus-jose-jwt-6
-
 == High-performance Ed25519 and X25519 cryptography comes to Nimbus JOSE+JWTs
+
+TIP: Online - https://connect2id.com/blog/nimbus-jose-jwt-6 (mentve: '20-02-02)
 
 Asymmetric RSA and EC cryptography comes at a cost. Its overhead can be a limiting factor in how quickly an OpenID
 Connect / OAuth 2.0 server can mint tokens, and client applications and protected resources can validate them. This new

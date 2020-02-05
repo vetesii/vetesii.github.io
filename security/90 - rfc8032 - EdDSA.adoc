@@ -1,7 +1,7 @@
 
 = 90 - rfc8032 - EdDSA
 
-Text verzió [mentve: '20-02-01]: https://tools.ietf.org/html/rfc8032
+Text verzió (mentve: '20-02-01): https://tools.ietf.org/html/rfc8032
 
 == Text verzió - https://tools.ietf.org/rfc/rfc8032.txt
 

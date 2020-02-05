@@ -1,0 +1,188 @@
+
+= 5 - Custom serializer
+
+Akár ode vissza különböző:
+
+```java
+public class Coordinates {
+    byte red;
+
+    @JsonProperty("r")
+    public byte getR() {
+      return red;
+    }
+
+    @JsonProperty("red")
+    public void setRed(byte red) {
+      this.red = red;
+    }
+}
+```
+
+== Dátum formátum
+
+[source,java]
+----
+
+ObjectMapper objectMapper = new ObjectMapper();
+
+TimeZone tz = TimeZone.getTimeZone("UTC");
+DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+df.setTimeZone(tz);
+objectMapper.setDateFormat(df);
+----
+
+=== JsonFormat
+
+[source,java]
+----
+@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm a z")
+private Date date;
+----
+
+=== Localdate, Calendar
+
+Vagy `JsonSerializer` és `JsonDeserializer`-t írsz vagy használod a megírtakat:
+
+[source,java]
+----
+/*
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ser.std.CalendarSerializer;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
+*/
+
+ObjectMapper objectMapper = new ObjectMapper();
+
+// Hogy a LocalDate formazasa faszanyos legyen
+JavaTimeModule javaTimeModule = new JavaTimeModule();
+javaTimeModule.addSerializer(LocalDate.class, new LocalDateSerializer(DateTimeFormatter.ISO_LOCAL_DATE));
+javaTimeModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(DateTimeFormatter.ISO_LOCAL_DATE));
+// Hogy a Calendar szerializalasa faszanyos legyen, befele tobb fajtat elfogadunk
+javaTimeModule.addSerializer(Calendar.class, new CalendarSerializer(false, new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")));
+objectMapper.registerModule(javaTimeModule);
+----
+
+== Mező szintű egyedi beállítás
+
+A `@JsonSerialize` annotációval tudsz megjelőlni egyedi serializer algoritmust valamilyen speciális kezelést igénylő
+mezőnél:
+
+```java
+@JsonSerialize(using = CustomJsonDateSerializer.class)
+private Date startDate;
+```
+
+# ObjectMapper szintű beállítás
+
+Ilyenkor minden megjeleőlt típus szerializálásakor a beállított szerializálót használja:
+
+```java
+ObjectMapper objectMapper = new ObjectMapper();
+SimpleModule module = new SimpleModule();
+module.addSerializer(DrJelzo.class, new CustomEnumJsonSerializer());
+module.addSerializer(LakohelyTipus.class, new MeditatorEnumJsonSerializer());
+objectMapper.registerModule(module);
+```
+
+```java
+package hu.vetesii.restadapter;
+
+import java.io.IOException;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+
+import hu.vetesii.DrJelzo;
+import hu.vetesii.LakohelyTipus;
+
+public class EnumJsonSerializer extends StdSerializer<Object> {
+    private static final long serialVersionUID = 1L;
+    private static final Logger log = LogManager.getLogger(MeditatorEnumJsonSerializer.class);
+
+    public MeditatorEnumJsonSerializer() {
+        this(null);
+    }
+    
+    protected MeditatorEnumJsonSerializer(Class<Object> type) {
+        super(type);
+    }
+
+    @Override
+    public void serialize(Object value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+        if (value==null) {
+            gen.writeNull();
+        } else if (value instanceof DrJelzo) {
+            gen.writeString(((DrJelzo) value).value());            
+        } else if (value instanceof LakohelyTipus) {
+            gen.writeString(((LakohelyTipus) value).value());            
+        } else {
+            log.error("A json serializal-ashoz irt custom Enum serializer ismeretlen enum tipust ({}) kapott, "
+                    + "amelyet nem tud kezelni. A kimeno adatra igy null-ertek kerul.", value.getClass()); 
+                    // fent van null check, sz'al biztonsagos a getClass()
+            gen.writeNull();    
+        } 
+    }
+}
+```
+
+
+Persze ennél szofisztikáltabban, ahogy a szükség hozza. A fentinél az az igazi trükk, hogy a wsimport-tal generált
+`value()` állítja át a szerializálást annál a két Enum-nál, ami a generált részből jön.
+
+=== LocalDate serialiser
+
+[source,java]
+----
+package hu.xxxx.yyyy.filter.web.jackson;
+
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+
+public class LocalDateSerializer extends JsonSerializer<LocalDate>
+{
+    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE;
+    
+    @Override
+    public void serialize(LocalDate value, JsonGenerator gen, SerializerProvider arg2)
+            throws IOException, JsonProcessingException {
+        if (value == null) {
+            gen.writeNull();
+        } else {
+            gen.writeString(value.format(DateTimeFormatter.ISO_LOCAL_DATE));
+        }
+    }
+}
+----
+
+=== Null értékek kezelése
+
+Ahogy a Jackson-ban általában, itt is speciálisan kezelendőek a `null` értékek: a null a következő esetben például nem
+lesz átadva a custom serializer-nek:
+
+```java
+@JsonSerialize(using = CustomJsonDateSerializer.class)
+private Date startDate;
+```
+
+csak úgy ha
+
+```java
+@JsonSerialize(using = CustomJsonDateSerializer.class, nullsUsing = CustomJsonDateSerializer.class)
+private Date startDate;
+```
+
+Ezzel megadod hogy ha null-t kell serialize-álni, akkor azt ki tudja megcsinálni. Persze ahogy fent látszódik, egy
+custom serializer-rel meg lehet oldani, ha úgy kényelmes.

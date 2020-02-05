@@ -1,5 +1,5 @@
 
-= OpenSSL
+= 01 - OpenSSL
 
 Windows-ra innen tudod letölteni: https://slproweb.com/products/Win32OpenSSL.html (**eddig ezzel nem volt gond
 működésileg és biztonságilag sem**)
@@ -12,7 +12,7 @@ működésileg és biztonságilag sem**)
 
 === SO - https://superuser.com/a/1103530
 
-[@ https://superuser.com/users/333086/gareththered]
+(@ https://superuser.com/users/333086/gareththered)
 
 For a list of possible curve names, run:
 
@@ -39,7 +39,7 @@ openssl req -new -sha256 -key my.key.pem -out my.csr
 
 === SO - https://stackoverflow.com/a/29362133/1807077
 
-[@Chiara Hsieh]
+(@Chiara Hsieh)
 
 Generate EC parameters
 

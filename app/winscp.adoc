@@ -1,0 +1,24 @@
+
+== winscp
+
+A keypass jegyzetnél. Érdemes használni.
+
+== Megfontolandó beálíltások
+
+* *Emellett erősen javalott a Remember session password and pass it to putty (SSH)* beállítást is bepipálni.
+
+== Putty helyett mobaxterm
+
+Ezt írd be a `Options > Preferences > Integration > Applications` részen a PuTTY/Terminal client application mezőbe:
+
+[source,]
+----
+# már régi
+# C:\vetesi\portable\Mobaxterm\MobaXterm_Personal.exe -exec "sshpass -p '!P' ssh !U@!@"
+
+d:\portable\Mobaxterm-12-3\MobaXterm_Personal_12.3.exe -newtab "sshpass -p '!P' ssh !U@!@"
+----
+
+A `!P` a jelszó placeholder, a `!U` a username és a `!@` az URL.
+
+*Emellett erősen javalott a Remember session password and pass it to putty (SSH)* beállítást is bepipálni.

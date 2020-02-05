@@ -1,7 +1,7 @@
 
 = 20 - Ed448 vs ed25519 - Differences
 
-[mentve: '20-02-01]
+(mentve: '20-02-01)
 
 https://crypto.stackexchange.com/questions/67457/elliptic-curve-ed25519-vs-ed448-differences
 

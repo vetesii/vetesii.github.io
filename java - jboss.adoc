@@ -1,0 +1,46 @@
+
+= java - jboss
+
+Ha valami ilyen hibát látsz:
+
+[source,]
+----
+Failed to link org/apache/cxf/ws/security/sts/provider/SecurityTokenServiceProvider  javax/xml/ws/Provider
+----
+
+Akkor leegyszerűsítve a Jboss alatti beépített web service implementáció okoz gondot.
+
+== Megoldás
+
+https://developer.jboss.org/thread/268163
+
+de lényegében a https://developer.jboss.org/message/969586#969586 post adja meg a jó megoldást (EAP 7.0-nál kellett
+eddig csak megoldanom):
+
+====
+I could fix this problem, by doing 3 things:
+1. As you already did: exclude the subsystems webservices and jaxrs.
+2. Adding the cxf-rt-ws-security lib to my project (e.g. maven dependency with scope compile)
+3. Adding two module dependencies in the jboss-deployment-structure.xml: java.xml.ws.api (which actually contains the Provider interface) and javax.jws.api
+
+So my file looked like this:
+
+[source,xml]
+----
+<jboss-deployment-structure>
+      <ear-subdeployments-isolated>false</ear-subdeployments-isolated>
+       <deployment>
+          <exclude-subsystems>
+               <subsystem name="webservices" />
+               <subsystem name="jaxrs" />
+          </exclude-subsystems>
+          <dependencies>
+               <module name="javax.xml.ws.api" export="true" />
+               <module name="javax.jws.api" export="true" />
+          </dependencies>
+     </deployment>
+</jboss-deployment-structure>
+----
+
+Hope this helps!
+====

@@ -1,0 +1,128 @@
+
+= keepass
+
+== Érdemes beállítások
+
+* advanced | advanced | remember working directory **KI** > file alapú jelszónál nem fog emlékezni újranyitáskor, hogy
+  honnan vetted elözőleg. Enélkül nem túl biztonságos...
+
+== Érdekes plugin-ek
+
+* KPEntryTemplates: https://keepass.info/plugins.html
+  ** https://keepass.info/plugins.html#kpentrytemplates
+
+== Placeholders
+
+A teljese leírés: https://keepass.info/help/base/placeholders.html
+
+* {TITLE} Title
+* {USERNAME}  User name
+* {URL} URL
+* {PASSWORD}  Password
+* {NOTES} Notes
+
+Hogy lehet egy részét használni
+
+* {URL:RMVSCM}  Entry URL without scheme name.
+* {URL:SCM} Scheme name of the entry URL.
+* {URL:HOST}  Host component of the entry URL.
+* {URL:PORT}  Port number of the entry URL.
+* {URL:PATH}  Path component of the entry URL.
+* {URL:QUERY} Query information of the entry URL.
+* {URL:USERINFO}  User information of the entry URL.
+* {URL:USERNAME}  User name of the entry URL.
+* {URL:PASSWORD}  Password of the entry URL.
+
+== URL override
+
+Az egyik leghasznosabb trükk a Keypass-ban.
+
+=== WinScp
+
+Option > Integration > URL overrides > Add
+
+[source,]
+----
+Scheme: winscp
+URL override: cmd://c:\vetesi\portable\winscp\WinSCP.exe sftp://{USERNAME}:{PASSWORD}@{URL:HOST}:22
+----
+
+vagy ami jobb
+
+[source,]
+----
+Scheme: winscp
+URL override: cmd://c:\vetesi\portable\winscp\WinSCP.exe sftp://{BASE:RMVSCM}:22
+----
+
+Amely után az bejegyzések URL részén ilyen dolgokat használhatsz:
+
+[source,]
+----
+winscp://{USERNAME}:{PASSWORD}@host_ip
+----
+
+Ahol csak a `host_ip`-t kell megadnod.
+
+== Putty / Mobaxterm
+
+inkább használd a Winscp bekötést, ahova bekötöd a terminal benyitást (WinScp jegyzet).
+
+=== Putty tunel
+
+Ez már egy kicsit fifikásabb, de kivitelezhető. Félig putty session-ön (keep-alive miatt) félig CLI argumentumokon
+alapszik. Tfh. a `c:\vetesi\portable\putty\PUTTY.EXE` utvonalon van a putty-d.
+
+Nyisd be és hozz létre egy új session-t:
+
+* host Name: üres
+* session neve:  jump-keep-alive
+* connection > seconds between keepalives (tetszőleges másodpercben): 60
+* window > Behaviour > window title: jump-keep-alive mukodik
+
+Mentsd el, majd a keypass-ban a Option > Integration > URL overrides > Add részen
+
+[source,]
+----
+scheme: pure-putty
+URL override: cmd://c:\vetesi\portable\putty\PUTTY.EXE {BASE:RMVSCM}
+----
+
+És ezután a keypass bejegyzéseknél az URL részen tudsz iylet használni:
+
+[source,]
+----
+pure-putty://-ssh -pw {PASSWORD} -load "jump-keep-alive" -L lp_1:t_host_1:t_port_1 -L lp_1:t_host_2:t_port_2 {USERNAME}@host_ip
+----
+
+Ahol a
+
+* `host_ip` helyére a szerver címét töltsd
+* `lp_1` és `lp_2` a lokális portok amiről továbbítani akarsz
+* `t_host_1` és `t_host_2` a távoli host/ip amit el akarsz érni
+* `t_port_1` és `t_port_2` a távoli post amit el akarsz érni
+
+Persze tetszőleges számú tunelt felvehetsz.
+
+A tunel beállítás lehetne a session-ben is, de a fenti módszernél csak egy általános több tunel-hez is használható
+session kell, és a keypass tárolja az IP-ket.
+
+== Plsql developer
+
+
+[source,]
+----
+Scheme: plsql-dev
+URL override: cmd://"C:\Program Files (x86)\PLSQL Developer\plsqldev.exe" {BASE:RMVSCM}
+----
+
+és
+
+[source,]
+----
+plsql-dev://userid={USERNAME}/{PASSWORD}@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=_ip_)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=_service_name)))
+----
+
+de lehet tnsnames bejegyzés neveket is használni a teljes `DESCRIPTION` helyett...
+
+*A fentinl a description részen ne legyen felesleges szóköz*. Ha igen, gondolom " jelek közé kell tenni.

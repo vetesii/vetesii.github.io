@@ -5,11 +5,16 @@
 
 === Q
 
+[quote,]
+____
 Among the ECC algorithms available in openSSH (ECDH, ECDSA, Ed25519, Curve25519), which offers the best level of
 security, and (ideally) why?
+____
 
 === A1
 
+[quote,]
+____
 *In SSH, two algorithms are used*: a key exchange algorithm (Diffie-Hellman or the elliptic-curve variant called ECDH)
 and a signature algorithm. The key exchange yields the secret key which will be used to encrypt data for that session.
 The signature is so that the client can make sure that it talks to the right server (another signature, computed by the
@@ -34,3 +39,4 @@ matter much: you control both client and server software.
 So, basically, the choice is down to aesthetics, i.e. completely up to you, with no rational reason. Security issues
 won't be caused by that choice anyway; the cryptographic algorithms are the strongest part of your whole system, not the
 weakest.
+____

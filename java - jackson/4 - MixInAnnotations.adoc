@@ -1,0 +1,39 @@
+
+= 4 - MixInAnnotations
+
+Leírás: https://github.com/FasterXML/jackson-docs/wiki/JacksonMixInAnnotations
+
+[source,java]
+----
+objectMapper.getSerializationConfig().addMixInAnnotations(Target.class, MixIn.class);
+objectMapper.getDeserializationConfig().addMixInAnnotations(Target.class, MixIn.class);
+----
+
+Ahol a `MixIn` class/interface annotáció felülbírálják a `Target` class annotációit.
+
+[source,java]
+----
+public final class Rectangle {
+    final private int w, h;
+    public Rectangle(int w, int h) {
+      this.w = w;
+      this.h = h;
+    }
+    public int getW() { return w; }
+    public int getH() { return h; }
+    public int getSize() { return w * h; }
+  }
+----
+
+[source,java]
+----
+abstract class MixIn {
+  MixIn(@JsonProperty("width") int w, @JsonProperty("height") int h) { }
+
+  // note: could alternatively annotate fields "w" and "h" as well -- if so, would need to @JsonIgnore getters
+  @JsonProperty("width") abstract int getW(); // rename property
+  @JsonProperty("height") abstract int getH(); // rename property
+  @JsonIgnore int getSize(); // we don't need it!
+
+}
+----

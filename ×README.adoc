@@ -1,0 +1,109 @@
+
+= ×README
+
+**Privát jegyzetek confluence push-a**
+
+Errefelé taláod meg a lokálisan eltett asciidoc jegyzeteim automatikusan konvertált és Confluence  push-olt változásait.
+Érdemes figyelembe venned, hogy az itt megírt hozzászólásaid el fognak veszni a következő push alatt.
+
+[TIP]
+====
+Kifejezetten sok formázás nélkül offline-ba lementett anyagot találsz itt. Ezek *_nem_* saját munkák, leírások, hanem
+valamilyen szempontból olyan leírások, amelyekből sokat tanultam és vagy az aktív munka során is szeretném visszanézni.
+====
+
+Ezek offline másolata azért készült, mert volt párszor hogy fontos információkat tartalmazó elmentett inline
+forrásanyagom szünt meg, és mivel nem olyan nagy szám ezeket formázás nélkül lementeni, így megteszem. Ráadásul ilyenkor
+még egyszer majdnem teljes elolvasom az anyagot.
+
+WARNING: Alapvetően azt ajánlom, hogy ha teheted, a leírások elején található linkelt, eredeti online forrást használd
+amikor teheted, mivel nem sűrűn frissítem - nem is lenne könnyű -, ráadásul a kommenteket és külső linkeket sem sűrűn
+másolom be az offline anyagba.
+
+== Segítség
+
+* https://confluence-publisher.atlassian.net/wiki/spaces/CPD/overview?mode=global
+  * https://confluence-publisher.atlassian.net/wiki/spaces/CPD/pages/315817985/Admonitions
+
+== Szabályok
+
+* a képek és egyéb belső linkelt erőforrásnál nincs szóköz a nevekben, mert az AsciiDoc fel tudja használni, de a git
+  LFS már bajlódik vele -> még mindig érdemes tartani az egyszerű fájlnevek felé
+
+== Maven POM a push-hoz
+
+(mentve: '20-02-03)
+
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>hu.idomsoft.vetesii</groupId>
+	<artifactId>vetesii-asciidoc-to-confluence</artifactId>
+	<version>0.1.0</version>
+	<packaging>pom</packaging>
+
+	<dependencies>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<!-- hogy a .credentials fájlból olvassa fel a username / password részt, amely nem GIT követett és amelynek tartalmát használat után törlöm. -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>properties-maven-plugin</artifactId>
+				<version>1.0.0</version>
+				<executions>
+					<execution>
+						<phase>initialize</phase>
+						<goals>
+							<goal>read-project-properties</goal>
+						</goals>
+						<configuration>
+							<files>
+								<file>${basedir}/credentials.properties</file>
+							</files>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.sahli.asciidoc.confluence.publisher</groupId>
+				<artifactId>asciidoc-confluence-publisher-maven-plugin</artifactId>
+				<version>0.8.0</version>
+				<executions>
+					<execution>
+						<phase>install</phase>
+						<goals>
+							<goal>publish</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<asciidocRootFolder>f:\notes</asciidocRootFolder>
+					<sourceEncoding>UTF-8</sourceEncoding> <!-- default -->
+					<rootConfluenceUrl>https://confluence.idomsoft.hu</rootConfluenceUrl>
+					<skipSslVerification>true</skipSslVerification>
+					<spaceKey>VON</spaceKey>
+					<ancestorId>15860699</ancestorId>
+					<username>${confluence.push.username}</username> <!-- or read from property -->
+					<password>${confluence.push.password}</password> <!-- or read from property -->
+					<!-- <pageTitlePrefix xml:space="preserve">adoc :: </pageTitlePrefix> -->
+					<!-- <pageTitleSuffix xml:space="preserve"> [${project.version}]</pageTitleSuffix> -->
+					<versionMessage>Version ${project.version}</versionMessage>
+					<attributes>
+						<version>${project.version}</version>
+						<someOtherKey>value</someOtherKey>
+					</attributes>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
+----

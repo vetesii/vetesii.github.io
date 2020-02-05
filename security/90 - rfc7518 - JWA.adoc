@@ -1,7 +1,7 @@
 
 = 90 - rfc7518 - JWA
 
-Text verzió [mentve: '20-02-01]: https://tools.ietf.org/rfc/rfc7518.txt
+Text verzió (mentve: '20-02-01): https://tools.ietf.org/rfc/rfc7518.txt
 
 == Text verzió - https://tools.ietf.org/rfc/rfc7518.txt
 

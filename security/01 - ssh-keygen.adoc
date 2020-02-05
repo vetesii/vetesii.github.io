@@ -3,7 +3,7 @@
 
 == Online - https://medium.com/risan/upgrade-your-ssh-key-to-ed25519-c6e8d60d3c54
 
-[@ https://medium.com/risan] ['20-02-01 mentés]
+(@ https://medium.com/risan) ('20-02-01 mentés)
 
 https://medium.com/risan/upgrade-your-ssh-key-to-ed25519-c6e8d60d3c54
 

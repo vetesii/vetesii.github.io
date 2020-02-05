@@ -1,7 +1,7 @@
 
 = 50 - Comparing Ed25519 vs RSA
 
-[mentve: '20-02-01]
+(mentve: '20-02-01)
 
 [TIP]
 ====

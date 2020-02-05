@@ -1,7 +1,7 @@
 
 = 10 - Digital Certificate Basics
 
-[@By Ivan Krizsan] [másolva: '20-02-01]
+(@By Ivan Krizsan) (másolva: '20-02-01)
 
 I have used digital certificates for quite some time without actually knowing how things work, for instance when a HTTPS
 connection is established between a client and a server. My knowledge was limited to a set of procedures like “put the

@@ -1,11 +1,20 @@
 
 = phauer - Version Numbers for Continuous Delivery with Maven and Docker
 
-[@ phauer.com] [mentve: '20-02-01]
+(@ phauer.com) (mentve: '20-02-01)
 
 [TIP]
 ====
 A hozzászólásokban még találsz hasznos információt.
+====
+
+[NOTE]
+====
+Én alapvetően még a https://semver.org/[Semantic Versioning] híve vagyok, mert megfelelően kezelve információt hordoz
+egy nem alapvetően LIB jellegű artifact-nál is. Vagy csak öreg vagyok... :D
+
+Mindenesetre megfontolás és átgondolás társát képezi ez és ennek pár éve megjelent alternatívái, amelyek teljesen
+kivezetik a verziókezelést a maven version részből.
 ====
 
 https://phauer.com/2016/version-numbers-continuous-delivery-maven-docker/

@@ -13,7 +13,7 @@ például redis - letárolod a custom munkamenet adataid.
 
 == Authentication Based on Subrequest Result (Online doksi mentése)
 
-[mentve: '20-02 környéke]
+(mentve: '20-02 környéke)
 
 https://docs.nginx.com/nginx/admin-guide/security-controls/configuring-subrequest-authentication/
 

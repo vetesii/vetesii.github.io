@@ -1,7 +1,7 @@
 
 = 52 - nbeguier - DSA vs RSA vs ECDSA vs Ed25519
 
-[@ https://medium.com/@nbeguier] [mentve: '20-02-01]
+(@ https://medium.com/@nbeguier) (mentve: '20-02-01)
 
 https://medium.com/@nbeguier/a-real-world-comparison-of-the-ssh-key-algorithms-b26b0b31bfd9
 

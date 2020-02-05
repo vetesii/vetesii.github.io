@@ -1,0 +1,52 @@
+
+= java - string
+
+* https://sourceforge.net/projects/faststringutil/
+
+== StringBuilder
+
+*append null*:
+
+[quote,]
+____
+The characters of the String argument are appended, in order, increasing the length of this sequence by the length of
+the argument. If str is null, then the four characters "null" are appended.
+____
+
+== Padding
+
+* http://stackoverflow.com/a/6185386
+
+Padding to 10 characters:
+
+[source,java]
+----
+String.format("%10s", "foo").replace(' ', '*');
+String.format("%-10s", "bar").replace(' ', '*');
+String.format("%10s", "longer than 10 chars").replace(' ', '*');
+----
+
+output:
+
+[source,]
+----
+*******foo
+bar*******
+longer*than*10*chars
+----
+
+Display '*' for characters of password:
+
+[source,java]
+----
+String password = "secret123";
+String padded = String.format("%"+password.length()+"s", "").replace(' ', '*');
+----
+
+output has the same length as the password string:
+
+[source,]
+----
+secret123
+*********
+----

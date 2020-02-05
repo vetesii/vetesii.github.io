@@ -1,5 +1,5 @@
 
-= PKI (public key infrastructure)
+= 26 - PKI (public key infrastructure)
 
 == Bevezető olvasmányok
 

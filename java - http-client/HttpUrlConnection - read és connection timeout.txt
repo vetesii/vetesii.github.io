@@ -1,0 +1,20 @@
+
+# Különbség
+
+1) What is the difference between connection and read timeout for sockets? The connection timeout is the timeout in
+   making the initial connection; i.e. completing the TCP connection handshake. The read timeout is the timeout on
+   waiting to read data. Specifically, if the server fails to send a byte <timeout> seconds after the last byte, a read
+   timeout error will be raised.
+
+2) What does connection timeout set to "infinity" mean? In what situation can it remain in an infinitive loop? and what
+   can trigger that the infinity-loop dies? It means that the connection attempt can potentially block for ever. There
+   is no infinite loop, but the attempt to connect can be unblocked by another thread closing the socket. (A
+   Thread.interrupt() call may also do the trick ... not sure.)
+
+3) What does read timeout set to "infinity" mean? In what situation can it remain in an infinitive loop? and what can
+   trigger that the infinity-loop dies? It means that a call to read on the socket stream may block for ever. Once again
+   there is no infinite loop, but the read can be unblocked by a Thread.interrupt() call, closing the socket, and (of
+   course) the other end sending data or closing the connection.
+
+Vagyis a connection timeout mondja meg, hogy mennyi idő alat kell felépítani a kapcsolatot, mig a read timeout adja meg,
+hogy két socket read között maximum mennyi idő telhet el. A kapcsolat felépítése ugye párbeszéd már.

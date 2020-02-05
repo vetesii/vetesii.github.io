@@ -1,13 +1,13 @@
 
 = 03 - JWT, JWS and JWE for Not So Dummies!
 
-WARNING: Ez az egyik legjobb cikk, amely a kezdeti időkben segítettt. Jó a nyelvezete és a tartalma is!
+WARNING: Ez az egyik legjobb cikk, amely a kezdeti időkben segített. Jó a nyelvezete és a tartalma is!
 (_Elvonatkoztatva attól, hogy back-channel kommunikációt preferálja a cég ahol dolgozom és BTW én is. A maradék tech
 része is bőven jó_)
 
 == Online - https://medium.facilelogin.com/jwt-jws-and-jwe-for-not-so-dummies-b63310d201a3
 
-[@ https://medium.facilelogin.com/@prabath] [mentve: '20-02-02]
+(@ https://medium.facilelogin.com/@prabath) (mentve: '20-02-02)
 
 JSON Web Token (JWT) defines a container to transport data between interested parties. It became an IETF standard in May
 2015 with the RFC 7519. There are multiple applications of JWT. The OpenID Connect is one of them. In OpenID Connect the

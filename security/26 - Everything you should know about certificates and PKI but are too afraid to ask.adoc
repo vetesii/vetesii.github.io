@@ -4,7 +4,7 @@
 WARNING: Sok betű, ám zseniálisan permutációban.
 
 * Online - https://smallstep.com/blog/everything-pki/
-* [@ https://twitter.com/mjmalone] [mentve: '20-02-03]
+* (@ https://twitter.com/mjmalone) (mentve: '20-02-03)
 
 Certificates and public key infrastructure (PKI) are hard. No shit, right? I know a lot of smart people who’ve avoided
 this particular rabbit hole. Personally, I avoided it for a long time and felt some shame for not knowing more. The
