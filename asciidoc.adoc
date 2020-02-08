@@ -1,0 +1,43 @@
+
+= asciidoc
+
+[source,sh]
+----
+# minden notes mappa alatti asciidoc fájlt konvertáljon át tmp cél mappába és -w alapján waning-okat is jelenitsen meg
+# 	ha van
+asciidoctor -B g:\notes\*.* -D g:\tmp\ -w
+----
+
+== List escape
+
+https://www.methods.co.nz/asciidoc/faq.html#_how_can_i_escape_a_list
+
+List item a sor elején, vagyis
+
+[source,]
+----
+   The JOSE key format ("JSON Web Key (JWK)") is defined by [RFC7517]
+   and thumbprints for it ("JSON Web Key (JWK) Thumbprint") in
+   [RFC7638].
+
+2.  Key Type "OKP"
+
+   A new key type (kty) value "OKP" (Octet Key Pair) is defined for
+   public key algorithms that use octet strings as private and public
+   keys.  It has the following parameters:
+----
+
+helyett
+
+[source,]
+----
+   The JOSE key format ("JSON Web Key (JWK)") is defined by [RFC7517]
+   and thumbprints for it ("JSON Web Key (JWK) Thumbprint") in
+   [RFC7638].
+
+{empty}2.  Key Type "OKP"
+
+   A new key type (kty) value "OKP" (Octet Key Pair) is defined for
+   public key algorithms that use octet strings as private and public
+   keys.  It has the following parameters:
+----

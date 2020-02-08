@@ -1,7 +1,9 @@
 
 = 90 - rfc8037 - ECDH in JOSE
 
-Text verzió (mentve: '20-02-01): https://tools.ietf.org/html/rfc8037
+* Text verzió
+* (mentve: '20-02-01)
+* https://tools.ietf.org/html/rfc8037
 
 == Text verzió - https://tools.ietf.org/rfc/rfc8037.txt
 
@@ -62,7 +64,8 @@ Liusvaara                    Standards Track                    [Page 1]
 
 RFC 8037            CFRG ECDH and Signatures in JOSE        January 2017
 
-
+[source,]
+----
 Table of Contents
 
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
@@ -89,353 +92,251 @@ Table of Contents
      A.7.  ECDH-ES with X448 . . . . . . . . . . . . . . . . . . . .  12
    Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . .  14
    Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .  14
+----
 
-1.  Introduction
+== 1.  Introduction
 
-   The Internet Research Task Force (IRTF) Crypto Forum Research Group
-   (CFRG) selected new Diffie-Hellman algorithms ("X25519" and "X448";
-   [RFC7748]) and signature algorithms ("Ed25519" and "Ed448";
-   [RFC8032]) for asymmetric key cryptography.  This document defines
-   how to use those algorithms in JOSE in an interoperable manner.
+The Internet Research Task Force (IRTF) Crypto Forum Research Group (CFRG) selected new Diffie-Hellman algorithms
+("X25519" and "X448"; [RFC7748]) and signature algorithms ("Ed25519" and "Ed448"; [RFC8032]) for asymmetric key
+cryptography.  This document defines how to use those algorithms in JOSE in an interoperable manner.
 
-   This document defines the conventions to use in the context of
-   [RFC7515], [RFC7516], and [RFC7517].
+This document defines the conventions to use in the context of [RFC7515], [RFC7516], and [RFC7517].
 
-   While the CFRG also defined two pairs of isogenous elliptic curves
-   that underlie these algorithms, these curves are not directly
-   exposed, as the algorithms laid on top are sufficient for the
-   purposes of JOSE and are much easier to use.
+While the CFRG also defined two pairs of isogenous elliptic curves that underlie these algorithms, these curves are not
+directly exposed, as the algorithms laid on top are sufficient for the purposes of JOSE and are much easier to use.
 
-   All inputs to and outputs from the Elliptic Curve Diffie-Hellman
-   (ECDH) and signature functions are defined to be octet strings, with
-   the exception of outputs of verification functions, which are
-   booleans.
+All inputs to and outputs from the Elliptic Curve Diffie-Hellman (ECDH) and signature functions are defined to be octet
+strings, with the exception of outputs of verification functions, which are booleans.
 
+=== 1.1.  Terminology
 
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and
+"OPTIONAL" in this document are to be interpreted as described in [RFC2119].
 
+"JWS Signing Input" and "JWS Signature" are defined by [RFC7515].
 
-Liusvaara                    Standards Track                    [Page 2]
-
-RFC 8037            CFRG ECDH and Signatures in JOSE        January 2017
+"Key Agreement with Elliptic Curve Diffie-Hellman Ephemeral Static" is defined by Section 4.6 of [RFC7518].
 
+The JOSE key format ("JSON Web Key (JWK)") is defined by [RFC7517] and thumbprints for it ("JSON Web Key (JWK)
+Thumbprint") in [RFC7638].
 
-1.1.  Terminology
+== 2.  Key Type "OKP"
 
-   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
-   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
-   document are to be interpreted as described in [RFC2119].
+A new key type (kty) value "OKP" (Octet Key Pair) is defined for public key algorithms that use octet strings as private
+and public keys.  It has the following parameters:
 
-   "JWS Signing Input" and "JWS Signature" are defined by [RFC7515].
+- The parameter "kty" MUST be "OKP".
+- The parameter "crv" MUST be present and contain the subtype of the key (from the "JSON Web Elliptic Curve" registry).
+- The parameter "x" MUST be present and contain the public key encoded using the base64url [RFC4648] encoding. -The
+  parameter "d" MUST be present for private keys and contain the private key encoded using the base64url encoding.  This
+  parameter MUST NOT be present for public keys.
 
-   "Key Agreement with Elliptic Curve Diffie-Hellman Ephemeral Static"
-   is defined by Section 4.6 of [RFC7518].
+Note: Do not assume that there is an underlying elliptic curve, despite the existence of the "crv" and "x" parameters.
+(For instance, this key type could be extended to represent Diffie-Hellman (DH) algorithms based on hyperelliptic
+surfaces.)
 
-   The JOSE key format ("JSON Web Key (JWK)") is defined by [RFC7517]
-   and thumbprints for it ("JSON Web Key (JWK) Thumbprint") in
-   [RFC7638].
+When calculating JWK Thumbprints [RFC7638], the three public key fields are included in the hash input in lexicographic
+order: "crv", "kty", and "x".
 
-2.  Key Type "OKP"
+== 3.  Algorithms
 
-   A new key type (kty) value "OKP" (Octet Key Pair) is defined for
-   public key algorithms that use octet strings as private and public
-   keys.  It has the following parameters:
+=== 3.1.  Signatures
 
-   o  The parameter "kty" MUST be "OKP".
+For the purpose of using the Edwards-curve Digital Signature Algorithm (EdDSA) for signing data using "JSON Web
+Signature (JWS)" [RFC7515], algorithm "EdDSA" is defined here, to be applied as the value of the "alg" parameter.
 
-   o  The parameter "crv" MUST be present and contain the subtype of the
-      key (from the "JSON Web Elliptic Curve" registry).
+The following key subtypes are defined here for use with EdDSA:
 
-   o  The parameter "x" MUST be present and contain the public key
-      encoded using the base64url [RFC4648] encoding.
+[source,]
+----
+"crv"             EdDSA Variant
+Ed25519           Ed25519
+Ed448             Ed448
+----
 
-   o  The parameter "d" MUST be present for private keys and contain the
-      private key encoded using the base64url encoding.  This parameter
-      MUST NOT be present for public keys.
+The key type used with these keys is "OKP" and the algorithm used for signing is "EdDSA".  These subtypes MUST NOT be
+used for Elliptic Curve Diffie-Hellman Ephemeral Static (ECDH-ES).
 
-   Note: Do not assume that there is an underlying elliptic curve,
-   despite the existence of the "crv" and "x" parameters.  (For
-   instance, this key type could be extended to represent Diffie-Hellman
-   (DH) algorithms based on hyperelliptic surfaces.)
+The EdDSA variant used is determined by the subtype of the key (Ed25519 for "Ed25519" and Ed448 for "Ed448").
 
-   When calculating JWK Thumbprints [RFC7638], the three public key
-   fields are included in the hash input in lexicographic order: "crv",
-   "kty", and "x".
+==== 3.1.1. Signing
 
+Signing for these is performed by applying the signing algorithm defined in [RFC8032] to the private key (as private
+key), public key (as public key), and the JWS Signing Input (as message).  The resulting signature is the JWS Signature.
+All inputs and outputs are octet strings.
 
+==== 3.1.2.  Verification
 
+Verification is performed by applying the verification algorithm defined in [RFC8032] to the public key (as public key),
+the JWS Signing Input (as message), and the JWS Signature (as signature). All inputs are octet strings.  If the
+algorithm accepts, the signature is valid; otherwise, the signature is invalid.
 
+=== 3.2.  ECDH-ES
 
+The following key subtypes are defined here for purpose of "Key Agreement with Elliptic Curve Diffie-Hellman Ephemeral
+Static" (ECDH-ES):
 
+[source,]
+----
+"crv"             ECDH Function Applied
+X25519            X25519
+X448              X448
+----
 
+The key type used with these keys is "OKP".  These subtypes MUST NOT be used for signing.
 
+Section 4.6 of [RFC7518] defines the ECDH-ES algorithms "ECDH-ES+A128KW", "ECDH-ES+A192KW", "ECDH-ES+A256KW", and
+"ECDH-ES".
 
+==== 3.2.1.  Performing the ECDH Operation
 
-Liusvaara                    Standards Track                    [Page 3]
-
-RFC 8037            CFRG ECDH and Signatures in JOSE        January 2017
+The "x" parameter of the "epk" field is set as follows:
 
-
-3.  Algorithms
-
-3.1.  Signatures
-
-   For the purpose of using the Edwards-curve Digital Signature
-   Algorithm (EdDSA) for signing data using "JSON Web Signature (JWS)"
-   [RFC7515], algorithm "EdDSA" is defined here, to be applied as the
-   value of the "alg" parameter.
-
-   The following key subtypes are defined here for use with EdDSA:
-
-      "crv"             EdDSA Variant
-      Ed25519           Ed25519
-      Ed448             Ed448
-
-   The key type used with these keys is "OKP" and the algorithm used for
-   signing is "EdDSA".  These subtypes MUST NOT be used for Elliptic
-   Curve Diffie-Hellman Ephemeral Static (ECDH-ES).
-
-   The EdDSA variant used is determined by the subtype of the key
-   (Ed25519 for "Ed25519" and Ed448 for "Ed448").
-
-3.1.1.  Signing
-
-   Signing for these is performed by applying the signing algorithm
-   defined in [RFC8032] to the private key (as private key), public key
-   (as public key), and the JWS Signing Input (as message).  The
-   resulting signature is the JWS Signature.  All inputs and outputs are
-   octet strings.
-
-3.1.2.  Verification
-
-   Verification is performed by applying the verification algorithm
-   defined in [RFC8032] to the public key (as public key), the JWS
-   Signing Input (as message), and the JWS Signature (as signature).
-   All inputs are octet strings.  If the algorithm accepts, the
-   signature is valid; otherwise, the signature is invalid.
-
-3.2.  ECDH-ES
-
-   The following key subtypes are defined here for purpose of "Key
-   Agreement with Elliptic Curve Diffie-Hellman Ephemeral Static"
-   (ECDH-ES):
-
-      "crv"             ECDH Function Applied
-      X25519            X25519
-      X448              X448
-
-
-
-
-Liusvaara                    Standards Track                    [Page 4]
-
-RFC 8037            CFRG ECDH and Signatures in JOSE        January 2017
-
-
-   The key type used with these keys is "OKP".  These subtypes MUST NOT
-   be used for signing.
-
-   Section 4.6 of [RFC7518] defines the ECDH-ES algorithms
-   "ECDH-ES+A128KW", "ECDH-ES+A192KW", "ECDH-ES+A256KW", and "ECDH-ES".
-
-3.2.1.  Performing the ECDH Operation
-
-   The "x" parameter of the "epk" field is set as follows:
-
-   Apply the appropriate ECDH function to the ephemeral private key (as
-   scalar input) and the standard base point (as u-coordinate input).
-   The base64url encoding of the output is the value for the "x"
-   parameter of the "epk" field.  All inputs and outputs are octet
-   strings.
-
-   The Z value (raw key agreement output) for key agreement (to be used
-   in subsequent Key Derivation Function (KDF) as per Section 4.6.2 of
-   [RFC7518]) is determined as follows:
-
-   Apply the appropriate ECDH function to the ephemeral private key (as
-   scalar input) and receiver public key (as u-coordinate input).  The
-   output is the Z value.  All inputs and outputs are octet strings.
-
-4.  Security Considerations
-
-   Security considerations from [RFC7748] and [RFC8032] apply here.
-
-   Do not separate key material from information about what key subtype
-   it is for.  When using keys, check that the algorithm is compatible
-   with the key subtype for the key.  To do otherwise opens the system
-   up to attacks via mixing up algorithms.  It is particularly dangerous
-   to mix up signature and Message Authentication Code (MAC) algorithms.
-
-   Although for Ed25519 and Ed448, the signature binds the key used for
-   signing, do not assume this, as there are many signature algorithms
-   that fail to make such a binding.  If key-binding is desired, include
-   the key used for signing either inside the JWS protected header or
-   the data to sign.
-
-   If key generation or batch signature verification is performed, a
-   well-seeded cryptographic random number generator is REQUIRED.
-   Signing and non-batch signature verification are deterministic
-   operations and do not need random numbers of any kind.
-
-
-
-
-
-
-
-Liusvaara                    Standards Track                    [Page 5]
-
-RFC 8037            CFRG ECDH and Signatures in JOSE        January 2017
-
-
-   The JSON Web Algorithm (JWA) ECDH-ES KDF construction does not mix
-   keys into the final shared secret.  In key exchange, such mixing
-   could be a bad mistake; whereas here either the receiver public key
-   has to be chosen maliciously or the sender has to be malicious in
-   order to cause problems.  In either case, all security evaporates.
-
-   The nominal security strengths of X25519 and X448 are ~126 and ~223
-   bits.  Therefore, using 256-bit symmetric encryption (especially key
-   wrapping and encryption) with X448 is RECOMMENDED.
-
-5.  IANA Considerations
-
-   The following has been added to the "JSON Web Key Types" registry:
-
-   o  "kty" Parameter Value: "OKP"
-   o  Key Type Description: Octet string key pairs
-   o  JOSE Implementation Requirements: Optional
-   o  Change Controller: IESG
-   o  Specification Document(s): Section 2 of RFC 8037
-
-   The following has been added to the "JSON Web Key Parameters"
-   registry:
-
-   o  Parameter Name: "crv"
-   o  Parameter Description: The subtype of key pair
-   o  Parameter Information Class: Public
-   o  Used with "kty" Value(s): "OKP"
-   o  Change Controller: IESG
-   o  Specification Document(s): Section 2 of RFC 8037
-
-   o  Parameter Name: "d"
-   o  Parameter Description: The private key
-   o  Parameter Information Class: Private
-   o  Used with "kty" Value(s): "OKP"
-   o  Change Controller: IESG
-   o  Specification Document(s): Section 2 of RFC 8037
-
-   o  Parameter Name: "x"
-   o  Parameter Description: The public key
-   o  Parameter Information Class: Public
-   o  Used with "kty" Value(s): "OKP"
-   o  Change Controller: IESG
-   o  Specification Document(s): Section 2 of RFC 8037
-
-
-
-
-
-
-
-
-Liusvaara                    Standards Track                    [Page 6]
-
-RFC 8037            CFRG ECDH and Signatures in JOSE        January 2017
-
-
-   The following has been added to the "JSON Web Signature and
-   Encryption Algorithms" registry:
-
-   o  Algorithm Name: "EdDSA"
-   o  Algorithm Description: EdDSA signature algorithms
-   o  Algorithm Usage Location(s): "alg"
-   o  JOSE Implementation Requirements: Optional
-   o  Change Controller: IESG
-
-   o  Specification Document(s): Section 3.1 of RFC 8037
-   o  Algorithm Analysis Documents(s): [RFC8032]
-
-   The following has been added to the "JSON Web Key Elliptic Curve"
-   registry:
-
-   o  Curve Name: "Ed25519"
-   o  Curve Description: Ed25519 signature algorithm key pairs
-   o  JOSE Implementation Requirements: Optional
-   o  Change Controller: IESG
-   o  Specification Document(s): Section 3.1 of RFC 8037
-
-   o  Curve Name: "Ed448"
-   o  Curve Description: Ed448 signature algorithm key pairs
-   o  JOSE Implementation Requirements: Optional
-   o  Change Controller: IESG
-   o  Specification Document(s): Section 3.1 of RFC 8037
-
-   o  Curve name: "X25519"
-   o  Curve Description: X25519 function key pairs
-   o  JOSE Implementation Requirements: Optional
-   o  Change Controller: IESG
-   o  Specification Document(s): Section 3.2 of RFC 8037
-   o  Analysis Documents(s): [RFC7748]
-
-   o  Curve Name: "X448"
-   o  Curve Description: X448 function key pairs
-   o  JOSE Implementation Requirements: Optional
-   o  Change Controller: IESG
-   o  Specification Document(s): Section 3.2 of RFC 8037
-   o  Analysis Documents(s): [RFC7748]
-
-
-
-
-
-
-
-
-
-
-
-Liusvaara                    Standards Track                    [Page 7]
-
-RFC 8037            CFRG ECDH and Signatures in JOSE        January 2017
-
-
-6.  References
-
-6.1.  Normative References
-
-   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
-              Requirement Levels", BCP 14, RFC 2119,
-              DOI 10.17487/RFC2119, March 1997,
-              <http://www.rfc-editor.org/info/rfc2119>.
-
-   [RFC4648]  Josefsson, S., "The Base16, Base32, and Base64 Data
-              Encodings", RFC 4648, DOI 10.17487/RFC4648, October 2006,
-              <http://www.rfc-editor.org/info/rfc4648>.
-
-   [RFC7515]  Jones, M., Bradley, J., and N. Sakimura, "JSON Web
-              Signature (JWS)", RFC 7515, DOI 10.17487/RFC7515, May
-              2015, <http://www.rfc-editor.org/info/rfc7515>.
-
-   [RFC7517]  Jones, M., "JSON Web Key (JWK)", RFC 7517,
-              DOI 10.17487/RFC7517, May 2015,
-              <http://www.rfc-editor.org/info/rfc7517>.
-
-   [RFC7518]  Jones, M., "JSON Web Algorithms (JWA)", RFC 7518,
-              DOI 10.17487/RFC7518, May 2015,
-              <http://www.rfc-editor.org/info/rfc7518>.
-
-   [RFC7638]  Jones, M. and N. Sakimura, "JSON Web Key (JWK)
-              Thumbprint", RFC 7638, DOI 10.17487/RFC7638, September
-              2015, <http://www.rfc-editor.org/info/rfc7638>.
-
-   [RFC7748]  Langley, A., Hamburg, M., and S. Turner, "Elliptic Curves
-              for Security", RFC 7748, DOI 10.17487/RFC7748, January
-              2016, <http://www.rfc-editor.org/info/rfc7748>.
-
-   [RFC8032]  Josefsson, S. and I. Liusvaara, "Edwards-Curve Digital
-              Signature Algorithm (EdDSA)", RFC 8032,
-              DOI 10.17487/RFC8032, January 2017,
-              <http://www.rfc-editor.org/info/rfc8032>.
+Apply the appropriate ECDH function to the ephemeral private key (as scalar input) and the standard base point (as
+u-coordinate input). The base64url encoding of the output is the value for the "x" parameter of the "epk" field.  All
+inputs and outputs are octet strings.
+
+The Z value (raw key agreement output) for key agreement (to be used in subsequent Key Derivation Function (KDF) as per
+Section 4.6.2 of [RFC7518]) is determined as follows:
+
+Apply the appropriate ECDH function to the ephemeral private key (as scalar input) and receiver public key (as
+u-coordinate input).  The output is the Z value.  All inputs and outputs are octet strings.
+
+== 4.  Security Considerations
+
+Security considerations from [RFC7748] and [RFC8032] apply here.
+
+Do not separate key material from information about what key subtype it is for.  When using keys, check that the
+algorithm is compatible with the key subtype for the key.  To do otherwise opens the system up to attacks via mixing up
+algorithms.  It is particularly dangerous to mix up signature and Message Authentication Code (MAC) algorithms.
+
+Although for Ed25519 and Ed448, the signature binds the key used for signing, do not assume this, as there are many
+signature algorithms that fail to make such a binding.  If key-binding is desired, include the key used for signing
+either inside the JWS protected header or the data to sign.
+
+If key generation or batch signature verification is performed, a well-seeded cryptographic random number generator is
+REQUIRED. Signing and non-batch signature verification are deterministic operations and do not need random numbers of
+any kind.
+
+The JSON Web Algorithm (JWA) ECDH-ES KDF construction does not mix keys into the final shared secret.  In key exchange,
+such mixing could be a bad mistake; whereas here either the receiver public key has to be chosen maliciously or the
+sender has to be malicious in order to cause problems.  In either case, all security evaporates.
+
+The nominal security strengths of X25519 and X448 are ~126 and ~223 bits.  Therefore, using 256-bit symmetric encryption
+(especially key wrapping and encryption) with X448 is RECOMMENDED.
+
+== 5.  IANA Considerations
+
+The following has been added to the "JSON Web Key Types" registry:
+
+* "kty" Parameter Value: "OKP"
+* Key Type Description: Octet string key pairs
+* JOSE Implementation Requirements: Optional
+* Change Controller: IESG
+* Specification Document(s): Section 2 of RFC 8037
+
+The following has been added to the "JSON Web Key Parameters" registry:
+
+* Parameter Name: "crv"
+* Parameter Description: The subtype of key pair
+* Parameter Information Class: Public
+* Used with "kty" Value(s): "OKP"
+* Change Controller: IESG
+* Specification Document(s): Section 2 of RFC 8037
+
+- Parameter Name: "d"
+- Parameter Description: The private key
+- Parameter Information Class: Private
+- Used with "kty" Value(s): "OKP"
+- Change Controller: IESG
+- Specification Document(s): Section 2 of RFC 8037
+
+- Parameter Name: "x"
+- Parameter Description: The public key
+- Parameter Information Class: Public
+- Used with "kty" Value(s): "OKP"
+- Change Controller: IESG
+- Specification Document(s): Section 2 of RFC 8037
+
+The following has been added to the "JSON Web Signature and Encryption Algorithms" registry:
+
+- Algorithm Name: "EdDSA"
+- Algorithm Description: EdDSA signature algorithms
+- Algorithm Usage Location(s): "alg"
+- JOSE Implementation Requirements: Optional
+- Change Controller: IESG
+
+- Specification Document(s): Section 3.1 of RFC 8037
+- Algorithm Analysis Documents(s): [RFC8032]
+
+The following has been added to the "JSON Web Key Elliptic Curve" registry:
+
+- Curve Name: "Ed25519"
+- Curve Description: Ed25519 signature algorithm key pairs
+- JOSE Implementation Requirements: Optional
+- Change Controller: IESG
+- Specification Document(s): Section 3.1 of RFC 8037
+
+- Curve Name: "Ed448"
+- Curve Description: Ed448 signature algorithm key pairs
+- JOSE Implementation Requirements: Optional
+- Change Controller: IESG
+- Specification Document(s): Section 3.1 of RFC 8037
+
+- Curve name: "X25519"
+- Curve Description: X25519 function key pairs
+- JOSE Implementation Requirements: Optional
+- Change Controller: IESG
+- Specification Document(s): Section 3.2 of RFC 8037
+- Analysis Documents(s): [RFC7748]
+
+- Curve Name: "X448"
+- Curve Description: X448 function key pairs
+- JOSE Implementation Requirements: Optional
+- Change Controller: IESG
+- Specification Document(s): Section 3.2 of RFC 8037
+- Analysis Documents(s): [RFC7748]
+
+== 6.  References
+
+=== 6.1.  Normative References
+
+[source,]
+----
+[RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+          Requirement Levels", BCP 14, RFC 2119,
+          DOI 10.17487/RFC2119, March 1997,
+          <http://www.rfc-editor.org/info/rfc2119>.
+
+[RFC4648]  Josefsson, S., "The Base16, Base32, and Base64 Data
+          Encodings", RFC 4648, DOI 10.17487/RFC4648, October 2006,
+          <http://www.rfc-editor.org/info/rfc4648>.
+
+[RFC7515]  Jones, M., Bradley, J., and N. Sakimura, "JSON Web
+          Signature (JWS)", RFC 7515, DOI 10.17487/RFC7515, May
+          2015, <http://www.rfc-editor.org/info/rfc7515>.
+
+[RFC7517]  Jones, M., "JSON Web Key (JWK)", RFC 7517,
+          DOI 10.17487/RFC7517, May 2015,
+          <http://www.rfc-editor.org/info/rfc7517>.
+
+[RFC7518]  Jones, M., "JSON Web Algorithms (JWA)", RFC 7518,
+          DOI 10.17487/RFC7518, May 2015,
+          <http://www.rfc-editor.org/info/rfc7518>.
+
+[RFC7638]  Jones, M. and N. Sakimura, "JSON Web Key (JWK)
+          Thumbprint", RFC 7638, DOI 10.17487/RFC7638, September
+          2015, <http://www.rfc-editor.org/info/rfc7638>.
+
+[RFC7748]  Langley, A., Hamburg, M., and S. Turner, "Elliptic Curves
+          for Security", RFC 7748, DOI 10.17487/RFC7748, January
+          2016, <http://www.rfc-editor.org/info/rfc7748>.
+
+[RFC8032]  Josefsson, S. and I. Liusvaara, "Edwards-Curve Digital
+          Signature Algorithm (EdDSA)", RFC 8032,
+          DOI 10.17487/RFC8032, January 2017,
+          <http://www.rfc-editor.org/info/rfc8032>.
+----
 
 6.2.  Informative References
 
@@ -748,43 +649,3 @@ Author's Address
    Independent
 
    Email: ilariliusvaara@welho.com
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Liusvaara                    Standards Track                   [Page 14]
-

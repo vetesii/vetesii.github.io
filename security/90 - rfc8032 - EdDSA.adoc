@@ -1,14 +1,15 @@
 
 = 90 - rfc8032 - EdDSA
 
-Text verzió (mentve: '20-02-01): https://tools.ietf.org/html/rfc8032
+* Text verzió
+* mentve: '20-02-01
+* https://tools.ietf.org/html/rfc8032
+* *appendix törölve*
 
 == Text verzió - https://tools.ietf.org/rfc/rfc8032.txt
 
-
-
-
-
+[source,]
+----
 Internet Research Task Force (IRTF)                         S. Josefsson
 Request for Comments: 8032                                        SJD AB
 Category: Informational                                     I. Liusvaara
@@ -17,54 +18,36 @@ ISSN: 2070-1721                                              Independent
 
 
            Edwards-Curve Digital Signature Algorithm (EdDSA)
+----
 
-Abstract
+*Abstract*
 
-   This document describes elliptic curve signature scheme Edwards-curve
-   Digital Signature Algorithm (EdDSA).  The algorithm is instantiated
-   with recommended parameters for the edwards25519 and edwards448
-   curves.  An example implementation and test vectors are provided.
+This document describes elliptic curve signature scheme Edwards-curve Digital Signature Algorithm (EdDSA).  The
+algorithm is instantiated with recommended parameters for the edwards25519 and edwards448 curves.  An example
+implementation and test vectors are provided.
 
-Status of This Memo
+*Status of This Memo*
 
-   This document is not an Internet Standards Track specification; it is
-   published for informational purposes.
+This document is not an Internet Standards Track specification; it is published for informational purposes.
 
-   This document is a product of the Internet Research Task Force
-   (IRTF).  The IRTF publishes the results of Internet-related research
-   and development activities.  These results might not be suitable for
-   deployment.  This RFC represents the consensus of the Crypto Forum
-   Research Group of the Internet Research Task Force (IRTF).  Documents
-   approved for publication by the IRSG are not a candidate for any
-   level of Internet Standard; see Section 2 of RFC 7841.
+This document is a product of the Internet Research Task Force (IRTF).  The IRTF publishes the results of
+Internet-related research and development activities.  These results might not be suitable for deployment.  This RFC
+represents the consensus of the Crypto Forum Research Group of the Internet Research Task Force (IRTF).  Documents
+approved for publication by the IRSG are not a candidate for any level of Internet Standard; see Section 2 of RFC 7841.
 
-   Information about the current status of this document, any errata,
-   and how to provide feedback on it may be obtained at
-   http://www.rfc-editor.org/info/rfc8032.
+Information about the current status of this document, any errata, and how to provide feedback on it may be obtained at
+http://www.rfc-editor.org/info/rfc8032.
 
-Copyright Notice
+*Copyright Notice*
 
-   Copyright (c) 2017 IETF Trust and the persons identified as the
-   document authors.  All rights reserved.
+Copyright (c) 2017 IETF Trust and the persons identified as the document authors.  All rights reserved.
 
-   This document is subject to BCP 78 and the IETF Trust's Legal
-   Provisions Relating to IETF Documents
-   (http://trustee.ietf.org/license-info) in effect on the date of
-   publication of this document.  Please review these documents
-   carefully, as they describe your rights and restrictions with respect
-   to this document.
+This document is subject to BCP 78 and the IETF Trust's Legal Provisions Relating to IETF Documents
+(http://trustee.ietf.org/license-info) in effect on the date of publication of this document.  Please review these
+documents carefully, as they describe your rights and restrictions with respect to this document.
 
-
-
-
-
-
-
-Josefsson & Liusvaara         Informational                     [Page 1]
-
-RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
-
-
+[source,]
+----
 Table of Contents
 
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   3
@@ -112,75 +95,50 @@ Table of Contents
    9.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  43
      9.1.  Normative References  . . . . . . . . . . . . . . . . . .  43
      9.2.  Informative References  . . . . . . . . . . . . . . . . .  44
-
-
-
-
-Josefsson & Liusvaara         Informational                     [Page 2]
-
-RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
-
-
    Appendix A.  Ed25519/Ed448 Python Library . . . . . . . . . . . .  46
    Appendix B.  Library Driver . . . . . . . . . . . . . . . . . . .  58
    Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . .  60
    Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  60
+----
 
-1.  Introduction
+== 1.  Introduction
 
-   The Edwards-curve Digital Signature Algorithm (EdDSA) is a variant of
-   Schnorr's signature system with (possibly twisted) Edwards curves.
-   EdDSA needs to be instantiated with certain parameters, and this
-   document describes some recommended variants.
+The Edwards-curve Digital Signature Algorithm (EdDSA) is a variant of Schnorr's signature system with (possibly twisted)
+Edwards curves. EdDSA needs to be instantiated with certain parameters, and this document describes some recommended
+variants.
 
-   To facilitate adoption of EdDSA in the Internet community, this
-   document describes the signature scheme in an implementation-oriented
-   way and provides sample code and test vectors.
+To facilitate adoption of EdDSA in the Internet community, this document describes the signature scheme in an
+implementation-oriented way and provides sample code and test vectors.
 
-   The advantages with EdDSA are as follows:
+The advantages with EdDSA are as follows:
 
-   1.  EdDSA provides high performance on a variety of platforms;
+. EdDSA provides high performance on a variety of platforms;
+. The use of a unique random number for each signature is not required;
+. It is more resilient to side-channel attacks;
+. EdDSA uses small public keys (32 or 57 bytes) and signatures (64
+   or 114 bytes) for Ed25519 and Ed448, respectively;
+. The formulas are "complete", i.e., they are valid for all points
+   on the curve, with no exceptions.  This obviates the need for
+   EdDSA to perform expensive point validation on untrusted public
+   values; and
+. EdDSA provides collision resilience, meaning that hash-function
+   collisions do not break this system (only holds for PureEdDSA).
 
-   2.  The use of a unique random number for each signature is not
-       required;
+The original EdDSA paper [EDDSA] and the generalized version described in "EdDSA for more curves" [EDDSA2] provide
+further background.  RFC 7748 [RFC7748] discusses specific curves, including Curve25519 [CURVE25519] and
+Ed448-Goldilocks [ED448].
 
-   3.  It is more resilient to side-channel attacks;
+Ed25519 is intended to operate at around the 128-bit security level and Ed448 at around the 224-bit security level.  A
+sufficiently large quantum computer would be able to break both.  Reasonable projections of the abilities of classical
+computers conclude that Ed25519 is perfectly safe.  Ed448 is provided for those applications with relaxed performance
+requirements and where there is a desire to hedge against analytical attacks on elliptic curves.
 
-   4.  EdDSA uses small public keys (32 or 57 bytes) and signatures (64
-       or 114 bytes) for Ed25519 and Ed448, respectively;
+== 2.  Notation and Conventions
 
-   5.  The formulas are "complete", i.e., they are valid for all points
-       on the curve, with no exceptions.  This obviates the need for
-       EdDSA to perform expensive point validation on untrusted public
-       values; and
+The following notation is used throughout the document:
 
-   6.  EdDSA provides collision resilience, meaning that hash-function
-       collisions do not break this system (only holds for PureEdDSA).
-
-   The original EdDSA paper [EDDSA] and the generalized version
-   described in "EdDSA for more curves" [EDDSA2] provide further
-   background.  RFC 7748 [RFC7748] discusses specific curves, including
-   Curve25519 [CURVE25519] and Ed448-Goldilocks [ED448].
-
-   Ed25519 is intended to operate at around the 128-bit security level
-   and Ed448 at around the 224-bit security level.  A sufficiently large
-   quantum computer would be able to break both.  Reasonable projections
-   of the abilities of classical computers conclude that Ed25519 is
-   perfectly safe.  Ed448 is provided for those applications with
-   relaxed performance requirements and where there is a desire to hedge
-   against analytical attacks on elliptic curves.
-
-
-
-Josefsson & Liusvaara         Informational                     [Page 3]
-
-RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
-
-
-2.  Notation and Conventions
-
-   The following notation is used throughout the document:
-
+[source,]
+----
    p              Denotes the prime number defining the underlying field
 
    GF(p)          Finite field with p elements
@@ -221,18 +179,6 @@ RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
 
    OLEN(x)        The number of octets in string x
 
-
-
-
-
-
-
-
-Josefsson & Liusvaara         Informational                     [Page 4]
-
-RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
-
-
    dom2(x, y)     The blank octet string when signing or verifying
                   Ed25519.  Otherwise, the octet string: "SigEd25519 no
                   Ed25519 collisions" || octet(x) || octet(OLEN(y)) ||
@@ -244,162 +190,108 @@ RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
                   octet(OLEN(y)) || y, where x is in range 0-255 and y
                   is an octet string of at most 255 octets.  "SigEd448"
                   is in ASCII (8 octets).
+----
 
-   Parentheses (i.e., '(' and ')') are used to group expressions, in
-   order to avoid having the description depend on a binding order
-   between operators.
+Parentheses (i.e., '(' and ')') are used to group expressions, in order to avoid having the description depend on a
+binding order between operators.
 
-   Bit strings are converted to octet strings by taking bits from left
-   to right, packing those from the least significant bit of each octet
-   to the most significant bit, and moving to the next octet when each
-   octet fills up.  The conversion from octet string to bit string is
-   the reverse of this process; for example, the 16-bit bit string
+Bit strings are converted to octet strings by taking bits from left to right, packing those from the least significant
+bit of each octet to the most significant bit, and moving to the next octet when each octet fills up.  The conversion
+from octet string to bit string is the reverse of this process; for example, the 16-bit bit string
 
-             b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 b10 b11 b12 b13 b14 b15
+[source,]
+----
+b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 b10 b11 b12 b13 b14 b15
+----
 
-   is converted into two octets x0 and x1 (in this order) as
+is converted into two octets x0 and x1 (in this order) as
 
-             x0 = b7*128+b6*64+b5*32+b4*16+b3*8+b2*4+b1*2+b0
-             x1 = b15*128+b14*64+b13*32+b12*16+b11*8+b10*4+b9*2+b8
+[source,]
+----
+x0 = b7*128+b6*64+b5*32+b4*16+b3*8+b2*4+b1*2+b0
+x1 = b15*128+b14*64+b13*32+b12*16+b11*8+b10*4+b9*2+b8
+----
 
-   Little-endian encoding into bits places bits from left to right and
-   from least significant to most significant.  If combined with
-   bit-string-to-octet-string conversion defined above, this results in
-   little-endian encoding into octets (if length is not a multiple of 8,
-   the most significant bits of the last octet remain unused).
+Little-endian encoding into bits places bits from left to right and from least significant to most significant.  If
+combined with bit-string-to-octet-string conversion defined above, this results in little-endian encoding into octets
+(if length is not a multiple of 8, the most significant bits of the last octet remain unused).
 
-   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
-   "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and "OPTIONAL" in this
-   document are to be interpreted as described in [RFC2119].
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and
+"OPTIONAL" in this document are to be interpreted as described in [RFC2119].
 
-3.  EdDSA Algorithm
+== 3.  EdDSA Algorithm
 
-   EdDSA is a digital signature system with 11 parameters.
+EdDSA is a digital signature system with 11 parameters.
 
-   The generic EdDSA digital signature system with its 11 input
-   parameters is not intended to be implemented directly.  Choosing
-   parameters is critical for secure and efficient operation.  Instead,
-   you would implement a particular parameter choice for EdDSA (such as
+The generic EdDSA digital signature system with its 11 input parameters is not intended to be implemented directly.
+Choosing parameters is critical for secure and efficient operation.  Instead, you would implement a particular parameter
+choice for EdDSA (such as Ed25519 or Ed448), sometimes slightly generalized to achieve code reuse to cover Ed25519 and
+Ed448.
 
+Therefore, a precise explanation of the generic EdDSA is thus not particularly useful for implementers.  For background
+and completeness, a succinct description of the generic EdDSA algorithm is given here.
 
+The definition of some parameters, such as n and c, may help to explain some steps of the algorithm that are not
+intuitive.
 
+This description closely follows [EDDSA2].
 
-Josefsson & Liusvaara         Informational                     [Page 5]
-
-RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
+EdDSA has 11 parameters:
 
-
-   Ed25519 or Ed448), sometimes slightly generalized to achieve code
-   reuse to cover Ed25519 and Ed448.
-
-   Therefore, a precise explanation of the generic EdDSA is thus not
-   particularly useful for implementers.  For background and
-   completeness, a succinct description of the generic EdDSA algorithm
-   is given here.
-
-   The definition of some parameters, such as n and c, may help to
-   explain some steps of the algorithm that are not intuitive.
-
-   This description closely follows [EDDSA2].
-
-   EdDSA has 11 parameters:
-
-   1.   An odd prime power p.  EdDSA uses an elliptic curve over the
-        finite field GF(p).
-
-   2.   An integer b with 2^(b-1) > p.  EdDSA public keys have exactly b
-        bits, and EdDSA signatures have exactly 2*b bits.  b is
-        recommended to be a multiple of 8, so public key and signature
-        lengths are an integral number of octets.
-
-   3.   A (b-1)-bit encoding of elements of the finite field GF(p).
-
-   4.   A cryptographic hash function H producing 2*b-bit output.
-        Conservative hash functions (i.e., hash functions where it is
-        infeasible to create collisions) are recommended and do not have
-        much impact on the total cost of EdDSA.
-
-   5.   An integer c that is 2 or 3.  Secret EdDSA scalars are multiples
-        of 2^c.  The integer c is the base-2 logarithm of the so-called
-        cofactor.
-
-   6.   An integer n with c <= n < b.  Secret EdDSA scalars have exactly
-        n + 1 bits, with the top bit (the 2^n position) always set and
-        the bottom c bits always cleared.
-
-   7.   A non-square element d of GF(p).  The usual recommendation is to
-        take it as the value nearest to zero that gives an acceptable
-        curve.
-
-   8.   A non-zero square element a of GF(p).  The usual recommendation
-        for best performance is a = -1 if p mod 4 = 1, and a = 1 if
-        p mod 4 = 3.
-
-   9.   An element B != (0,1) of the set E = { (x,y) is a member of
-        GF(p) x GF(p) such that a * x^2 + y^2 = 1 + d * x^2 * y^2 }.
+1. An odd prime power p.  EdDSA uses an elliptic curve over the finite field GF(p).
+2. An integer b with 2^(b-1) > p.  EdDSA public keys have exactly b bits, and EdDSA signatures have exactly 2*b bits. b
+   is recommended to be a multiple of 8, so public key and signature lengths are an integral number of octets.
+3. A (b-1)-bit encoding of elements of the finite field GF(p).
+4. A cryptographic hash function H producing 2*b-bit output. Conservative hash functions (i.e., hash functions where
+     it is infeasible to create collisions) are recommended and do not have much impact on the total cost of EdDSA.
+5.   An integer c that is 2 or 3.  Secret EdDSA scalars are multiples of 2^c.  The integer c is the base-2 logarithm of
+     the so-called cofactor.
+6.   An integer n with c <= n < b.  Secret EdDSA scalars have exactly n + 1 bits, with the top bit (the 2^n position)
+     always set and the bottom c bits always cleared.
+7.   A non-square element d of GF(p).  The usual recommendation is to take it as the value nearest to zero that gives an
+     acceptable curve.
+8.   A non-zero square element a of GF(p).  The usual recommendation for best performance is a = -1 if p mod 4 = 1, and
+     a = 1 if p mod 4 = 3.
+9.   An element B != (0,1) of the set E = { (x,y) is a member of GF(p) x GF(p) such that a * x^2 + y^2 = 1 + d * x^2 *
+     y^2 }.
+10.  An odd prime L such that [L]B = 0 and 2^c * L = #E.  The number #E (the number of points on the curve) is part of
+     the standard data provided for an elliptic curve E, or it can be computed as cofactor * order.
+11.  A "prehash" function PH.  PureEdDSA means EdDSA where PH is the identity function, i.e., PH(M) = M.  HashEdDSA
+     means EdDSA where PH generates a short output, no matter how long the message is; for example, PH(M) = SHA-512(M).
 
 
+Points on the curve form a group under addition, (x3, y3) = (x1, y1)   + (x2, y2), with the formulas
 
-Josefsson & Liusvaara         Informational                     [Page 6]
-
-RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
+[source,]
+----
+         x1 * y2 + x2 * y1                y1 * y2 - a * x1 * x2
+x3 = --------------------------,   y3 = ---------------------------
+     1 + d * x1 * x2 * y1 * y2          1 - d * x1 * x2 * y1 * y2
+----
 
+The neutral element in the group is (0,1).
 
-   10.  An odd prime L such that [L]B = 0 and 2^c * L = #E.  The number
-        #E (the number of points on the curve) is part of the standard
-        data provided for an elliptic curve E, or it can be computed as
-        cofactor * order.
+Unlike many other curves used for cryptographic applications, these formulas are "complete"; they are valid for all
+points on the curve, with no exceptions.  In particular, the denominators are non-zero for all input points.
 
-   11.  A "prehash" function PH.  PureEdDSA means EdDSA where PH is the
-        identity function, i.e., PH(M) = M.  HashEdDSA means EdDSA where
-        PH generates a short output, no matter how long the message is;
-        for example, PH(M) = SHA-512(M).
+There are more efficient formulas, which are still complete, that use homogeneous coordinates to avoid the expensive
+modulo p inversions. See [Faster-ECC] and [Edwards-revisited].
 
-   Points on the curve form a group under addition, (x3, y3) = (x1, y1)
-   + (x2, y2), with the formulas
+=== 3.1.  Encoding
 
-             x1 * y2 + x2 * y1                y1 * y2 - a * x1 * x2
-   x3 = --------------------------,   y3 = ---------------------------
-         1 + d * x1 * x2 * y1 * y2          1 - d * x1 * x2 * y1 * y2
+An integer 0 < S < L - 1 is encoded in little-endian form as a b-bit string ENC(S).
 
-   The neutral element in the group is (0,1).
+An element (x,y) of E is encoded as a b-bit string called ENC(x,y), which is the (b-1)-bit encoding of y concatenated
+with one bit that is 1 if x is negative and 0 if x is not negative.
 
-   Unlike many other curves used for cryptographic applications, these
-   formulas are "complete"; they are valid for all points on the curve,
-   with no exceptions.  In particular, the denominators are non-zero for
-   all input points.
+The encoding of GF(p) is used to define "negative" elements of GF(p): specifically, x is negative if the (b-1)-bit
+encoding of x is lexicographically larger than the (b-1)-bit encoding of -x.
 
-   There are more efficient formulas, which are still complete, that use
-   homogeneous coordinates to avoid the expensive modulo p inversions.
-   See [Faster-ECC] and [Edwards-revisited].
+=== 3.2.  Keys
 
-3.1.  Encoding
-
-   An integer 0 < S < L - 1 is encoded in little-endian form as a b-bit
-   string ENC(S).
-
-   An element (x,y) of E is encoded as a b-bit string called ENC(x,y),
-   which is the (b-1)-bit encoding of y concatenated with one bit that
-   is 1 if x is negative and 0 if x is not negative.
-
-   The encoding of GF(p) is used to define "negative" elements of GF(p):
-   specifically, x is negative if the (b-1)-bit encoding of x is
-   lexicographically larger than the (b-1)-bit encoding of -x.
-
-3.2.  Keys
-
-   An EdDSA private key is a b-bit string k.  Let the hash H(k) =
-   (h_0, h_1, ..., h_(2b-1)) determine an integer s, which is 2^n plus
-   the sum of m = 2^i * h_i for all integer i, c <= i < n.  Let s
-   determine the multiple A = [s]B.  The EdDSA public key is ENC(A).
-   The bits h_b, ..., h_(2b-1) are used below during signing.
-
-
-
-Josefsson & Liusvaara         Informational                     [Page 7]
-
-RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
-
+An EdDSA private key is a b-bit string k.  Let the hash H(k) = (h_0, h_1, ..., h_(2b-1)) determine an integer s, which
+is 2^n plus the sum of m = 2^i * h_i for all integer i, c <= i < n.  Let s determine the multiple A = [s]B.  The EdDSA
+public key is ENC(A). The bits h_b, ..., h_(2b-1) are used below during signing.
 
 3.3.  Sign
 
@@ -427,7 +319,7 @@ RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
    EdDSA verification for a message M is defined as PureEdDSA
    verification for PH(M).
 
-4.  PureEdDSA, HashEdDSA, and Naming
+== 4.  PureEdDSA, HashEdDSA, and Naming
 
    One of the parameters of the EdDSA algorithm is the "prehash"
    function.  This may be the identity function, resulting in an
@@ -461,14 +353,14 @@ RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
    variants Ed25519ph and Ed448ph and the PureEdDSA variants Ed25519 and
    Ed448.
 
-5.  EdDSA Instances
+== 5.  EdDSA Instances
 
    This section instantiates the general EdDSA algorithm for the
    edwards25519 and edwards448 curves, each for the PureEdDSA and
    HashEdDSA variants (plus a contextualized extension of the Ed25519
    scheme).  Thus, five different parameter sets are described.
 
-5.1.  Ed25519ph, Ed25519ctx, and Ed25519
+=== 5.1.  Ed25519ph, Ed25519ctx, and Ed25519
 
    Ed25519 is EdDSA instantiated with:
 
@@ -571,78 +463,56 @@ RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
 
 5.1.3.  Decoding
 
-   Decoding a point, given as a 32-octet string, is a little more
-   complicated.
+Decoding a point, given as a 32-octet string, is a little more complicated.
 
-   1.  First, interpret the string as an integer in little-endian
-       representation.  Bit 255 of this number is the least significant
-       bit of the x-coordinate and denote this value x_0.  The
-       y-coordinate is recovered simply by clearing this bit.  If the
-       resulting value is >= p, decoding fails.
-
-   2.  To recover the x-coordinate, the curve equation implies
-       x^2 = (y^2 - 1) / (d y^2 + 1) (mod p).  The denominator is always
-       non-zero mod p.  Let u = y^2 - 1 and v = d y^2 + 1.  To compute
-       the square root of (u/v), the first step is to compute the
-       candidate root x = (u/v)^((p+3)/8).  This can be done with the
-       following trick, using a single modular powering for both the
-       inversion of v and the square root:
-
-                          (p+3)/8      3        (p-5)/8
-                 x = (u/v)        = u v  (u v^7)         (mod p)
-
-   3.  Again, there are three cases:
-
-       1.  If v x^2 = u (mod p), x is a square root.
-
-       2.  If v x^2 = -u (mod p), set x <-- x * 2^((p-1)/4), which is a
-           square root.
-
-       3.  Otherwise, no square root exists for modulo p, and decoding
-           fails.
-
-   4.  Finally, use the x_0 bit to select the right square root.  If
-       x = 0, and x_0 = 1, decoding fails.  Otherwise, if x_0 != x mod
-       2, set x <-- p - x.  Return the decoded point (x,y).
+1.  First, interpret the string as an integer in little-endian representation.  Bit 255 of this number is the least
+    significant bit of the x-coordinate and denote this value x_0.  The y-coordinate is recovered simply by clearing
+    this bit.  If the resulting value is >= p, decoding fails.
+2.  To recover the x-coordinate, the curve equation implies x^2 = (y^2 - 1) / (d y^2 + 1) (mod p).  The denominator is
+    always non-zero mod p.  Let u = y^2 - 1 and v = d y^2 + 1.  To compute the square root of (u/v), the first step is
+    to compute the candidate root x = (u/v)^((p+3)/8).  This can be done with the following trick, using a single
+    modular powering for both the inversion of v and the square root:
++
+[source,]
+----
+        (p+3)/8      3        (p-5)/8
+x = (u/v)        = u v  (u v^7)         (mod p)
+----
+3.  Again, there are three cases:
+  .  If v x^2 = u (mod p), x is a square root.
+  .  If v x^2 = -u (mod p), set x <-- x * 2^((p-1)/4), which is a
+     square root.
+  .  Otherwise, no square root exists for modulo p, and decoding
+     fails.
+4.  Finally, use the x_0 bit to select the right square root.  If x = 0, and x_0 = 1, decoding fails.  Otherwise, if x_0
+    != x mod 2, set x <-- p - x.  Return the decoded point (x,y).
 
 5.1.4.  Point Addition
 
-   For point addition, the following method is recommended.  A point
-   (x,y) is represented in extended homogeneous coordinates (X, Y, Z,
-   T), with x = X/Z, y = Y/Z, x * y = T/Z.
+For point addition, the following method is recommended.  A point (x,y) is represented in extended homogeneous
+coordinates (X, Y, Z, T), with x = X/Z, y = Y/Z, x * y = T/Z.
 
-   The neutral point is (0,1), or equivalently in extended homogeneous
-   coordinates (0, Z, Z, 0) for any non-zero Z.
+The neutral point is (0,1), or equivalently in extended homogeneous coordinates (0, Z, Z, 0) for any non-zero Z.
 
+The following formulas for adding two points, (x3,y3) = (x1,y1)+(x2,y2), on twisted Edwards curves with a=-1, square a,
+and non-square d are described in Section 3.1 of [Edwards-revisited] and in [EFD-TWISTED-ADD].  They are complete, i.e.,
+they work for any pair of valid input points.
 
-
-
-
-
-
-Josefsson & Liusvaara         Informational                    [Page 11]
-
-RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
-
-
-   The following formulas for adding two points, (x3,y3) =
-   (x1,y1)+(x2,y2), on twisted Edwards curves with a=-1, square a, and
-   non-square d are described in Section 3.1 of [Edwards-revisited] and
-   in [EFD-TWISTED-ADD].  They are complete, i.e., they work for any
-   pair of valid input points.
-
-                 A = (Y1-X1)*(Y2-X2)
-                 B = (Y1+X1)*(Y2+X2)
-                 C = T1*2*d*T2
-                 D = Z1*2*Z2
-                 E = B-A
-                 F = D-C
-                 G = D+C
-                 H = B+A
-                 X3 = E*F
-                 Y3 = G*H
-                 T3 = E*H
-                 Z3 = F*G
+[source,]
+----
+A = (Y1-X1)*(Y2-X2)
+B = (Y1+X1)*(Y2+X2)
+C = T1*2*d*T2
+D = Z1*2*Z2
+E = B-A
+F = D-C
+G = D+C
+H = B+A
+X3 = E*F
+Y3 = G*H
+T3 = E*H
+Z3 = F*G
+----
 
    For point doubling, (x3,y3) = (x1,y1)+(x1,y1), one could just
    substitute equal points in the above (because of completeness, such
@@ -663,428 +533,255 @@ RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
                  T3 = E*H
                  Z3 = F*G
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-Josefsson & Liusvaara         Informational                    [Page 12]
-
-RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
-
-
 5.1.5.  Key Generation
 
-   The private key is 32 octets (256 bits, corresponding to b) of
-   cryptographically secure random data.  See [RFC4086] for a discussion
-   about randomness.
+The private key is 32 octets (256 bits, corresponding to b) of cryptographically secure random data.  See [RFC4086] for
+a discussion about randomness.
 
-   The 32-byte public key is generated by the following steps.
+The 32-byte public key is generated by the following steps.
 
-   1.  Hash the 32-byte private key using SHA-512, storing the digest in
-       a 64-octet large buffer, denoted h.  Only the lower 32 bytes are
-       used for generating the public key.
+1.  Hash the 32-byte private key using SHA-512, storing the digest in a 64-octet large buffer, denoted h.  Only the
+    lower 32 bytes are used for generating the public key.
 
-   2.  Prune the buffer: The lowest three bits of the first octet are
-       cleared, the highest bit of the last octet is cleared, and the
-       second highest bit of the last octet is set.
+2.  Prune the buffer: The lowest three bits of the first octet are cleared, the highest bit of the last octet is
+    cleared, and the second highest bit of the last octet is set.
 
-   3.  Interpret the buffer as the little-endian integer, forming a
-       secret scalar s.  Perform a fixed-base scalar multiplication
-       [s]B.
+3.  Interpret the buffer as the little-endian integer, forming a secret scalar s.  Perform a fixed-base scalar
+    multiplication [s]B.
 
-   4.  The public key A is the encoding of the point [s]B.  First,
-       encode the y-coordinate (in the range 0 <= y < p) as a little-
-       endian string of 32 octets.  The most significant bit of the
-       final octet is always zero.  To form the encoding of the point
-       [s]B, copy the least significant bit of the x coordinate to the
-       most significant bit of the final octet.  The result is the
-       public key.
+4.  The public key A is the encoding of the point [s]B.  First, encode the y-coordinate (in the range 0 <= y < p) as a
+    little- endian string of 32 octets.  The most significant bit of the final octet is always zero.  To form the
+    encoding of the point [s]B, copy the least significant bit of the x coordinate to the most significant bit of the
+    final octet.  The result is the public key.
 
-5.1.6.  Sign
+==== 5.1.6.  Sign
 
-   The inputs to the signing procedure is the private key, a 32-octet
-   string, and a message M of arbitrary size.  For Ed25519ctx and
-   Ed25519ph, there is additionally a context C of at most 255 octets
-   and a flag F, 0 for Ed25519ctx and 1 for Ed25519ph.
+The inputs to the signing procedure is the private key, a 32-octet string, and a message M of arbitrary size.  For
+Ed25519ctx and Ed25519ph, there is additionally a context C of at most 255 octets and a flag F, 0 for Ed25519ctx and 1
+for Ed25519ph.
 
-   1.  Hash the private key, 32 octets, using SHA-512.  Let h denote the
-       resulting digest.  Construct the secret scalar s from the first
-       half of the digest, and the corresponding public key A, as
-       described in the previous section.  Let prefix denote the second
-       half of the hash digest, h[32],...,h[63].
+1.  Hash the private key, 32 octets, using SHA-512.  Let h denote the resulting digest.  Construct the secret scalar s
+    from the first half of the digest, and the corresponding public key A, as described in the previous section.  Let
+    prefix denote the second half of the hash digest, h[32],...,h[63].
+2.  Compute SHA-512(dom2(F, C) || prefix || PH(M)), where M is the message to be signed.  Interpret the 64-octet digest
+    as a little- endian integer r.
+3.  Compute the point [r]B.  For efficiency, do this by first reducing r modulo L, the group order of B.  Let the string
+    R be the encoding of this point.
+4.  Compute SHA512(dom2(F, C) || R || A || PH(M)), and interpret the 64-octet digest as a little-endian integer k.
+5.  Compute S = (r + k * s) mod L.  For efficiency, again reduce k modulo L first.
+6.  Form the signature of the concatenation of R (32 octets) and the little-endian encoding of S (32 octets; the three
+    most significant bits of the final octet are always zero).
 
-   2.  Compute SHA-512(dom2(F, C) || prefix || PH(M)), where M is the
-       message to be signed.  Interpret the 64-octet digest as a little-
-       endian integer r.
+==== 5.1.7.  Verify
 
-   3.  Compute the point [r]B.  For efficiency, do this by first
-       reducing r modulo L, the group order of B.  Let the string R be
-       the encoding of this point.
-
-
-
-Josefsson & Liusvaara         Informational                    [Page 13]
-
-RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
-
-
-   4.  Compute SHA512(dom2(F, C) || R || A || PH(M)), and interpret the
-       64-octet digest as a little-endian integer k.
-
-   5.  Compute S = (r + k * s) mod L.  For efficiency, again reduce k
-       modulo L first.
-
-   6.  Form the signature of the concatenation of R (32 octets) and the
-       little-endian encoding of S (32 octets; the three most
-       significant bits of the final octet are always zero).
-
-5.1.7.  Verify
-
-   1.  To verify a signature on a message M using public key A, with F
-       being 0 for Ed25519ctx, 1 for Ed25519ph, and if Ed25519ctx or
-       Ed25519ph is being used, C being the context, first split the
-       signature into two 32-octet halves.  Decode the first half as a
-       point R, and the second half as an integer S, in the range
-       0 <= s < L.  Decode the public key A as point A'.  If any of the
-       decodings fail (including S being out of range), the signature is
-       invalid.
-
-   2.  Compute SHA512(dom2(F, C) || R || A || PH(M)), and interpret the
-       64-octet digest as a little-endian integer k.
-
-   3.  Check the group equation [8][S]B = [8]R + [8][k]A'.  It's
-       sufficient, but not required, to instead check [S]B = R + [k]A'.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Josefsson & Liusvaara         Informational                    [Page 14]
-
-RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
-
+1.  To verify a signature on a message M using public key A, with F being 0 for Ed25519ctx, 1 for Ed25519ph, and if
+    Ed25519ctx or Ed25519ph is being used, C being the context, first split the signature into two 32-octet halves.
+    Decode the first half as a point R, and the second half as an integer S, in the range 0 <= s < L.  Decode the public
+    key A as point A'.  If any of the decodings fail (including S being out of range), the signature is invalid.
+2.  Compute SHA512(dom2(F, C) || R || A || PH(M)), and interpret the 64-octet digest as a little-endian integer k.
+3.  Check the group equation [8][S]B = [8]R + [8][k]A'.  It's sufficient, but not required, to instead check [S]B = R +
+    [k]A'.
 
 5.2.  Ed448ph and Ed448
 
-   Ed448 is EdDSA instantiated with:
+Ed448 is EdDSA instantiated with:
 
-   +-----------+-------------------------------------------------------+
-   | Parameter | Value                                                 |
-   +-----------+-------------------------------------------------------+
-   |     p     | p of edwards448 in [RFC7748] (i.e., 2^448 - 2^224 -   |
-   |           | 1)                                                    |
-   |     b     | 456                                                   |
-   |  encoding | 455-bit little-endian encoding of {0, 1, ..., p-1}    |
-   |  of GF(p) |                                                       |
-   |    H(x)   | SHAKE256(dom4(phflag,context)||x, 114)                |
-   |   phflag  | 0                                                     |
-   |     c     | base 2 logarithm of cofactor of edwards448 in         |
-   |           | [RFC7748] (i.e., 2)                                   |
-   |     n     | 447                                                   |
-   |     d     | d of edwards448 in [RFC7748] (i.e., -39081)           |
-   |     a     | 1                                                     |
-   |     B     | (X(P),Y(P)) of edwards448 in [RFC7748] (i.e., (224580 |
-   |           | 04029592430018760433409989603624678964163256413424612 |
-   |           | 54616869504154674060329090291928693579532825780320751 |
-   |           | 46446173674602635247710, 2988192100784814926760179304 |
-   |           | 43930673437544040154080242095928241372331506189835876 |
-   |           | 00353687865541878473398230323350346250053154506283266 |
-   |           | 0))                                                   |
-   |     L     | order of edwards448 in [RFC7748] (i.e., 2^446 - 13818 |
-   |           | 06680989511535200738674851542688033669247488217860989 |
-   |           | 4547503885).                                          |
-   |   PH(x)   | x (i.e., the identity function)                       |
-   +-----------+-------------------------------------------------------+
+[source,]
+----
++-----------+-------------------------------------------------------+
+| Parameter | Value                                                 |
++-----------+-------------------------------------------------------+
+|     p     | p of edwards448 in [RFC7748] (i.e., 2^448 - 2^224 -   |
+|           | 1)                                                    |
+|     b     | 456                                                   |
+|  encoding | 455-bit little-endian encoding of {0, 1, ..., p-1}    |
+|  of GF(p) |                                                       |
+|    H(x)   | SHAKE256(dom4(phflag,context)||x, 114)                |
+|   phflag  | 0                                                     |
+|     c     | base 2 logarithm of cofactor of edwards448 in         |
+|           | [RFC7748] (i.e., 2)                                   |
+|     n     | 447                                                   |
+|     d     | d of edwards448 in [RFC7748] (i.e., -39081)           |
+|     a     | 1                                                     |
+|     B     | (X(P),Y(P)) of edwards448 in [RFC7748] (i.e., (224580 |
+|           | 04029592430018760433409989603624678964163256413424612 |
+|           | 54616869504154674060329090291928693579532825780320751 |
+|           | 46446173674602635247710, 2988192100784814926760179304 |
+|           | 43930673437544040154080242095928241372331506189835876 |
+|           | 00353687865541878473398230323350346250053154506283266 |
+|           | 0))                                                   |
+|     L     | order of edwards448 in [RFC7748] (i.e., 2^446 - 13818 |
+|           | 06680989511535200738674851542688033669247488217860989 |
+|           | 4547503885).                                          |
+|   PH(x)   | x (i.e., the identity function)                       |
++-----------+-------------------------------------------------------+
 
-                       Table 2: Parameters of Ed448
+                   Table 2: Parameters of Ed448
+----
 
-   Ed448ph is the same but with PH being SHAKE256(x, 64) and phflag
-   being 1, i.e., the input is hashed before signing with Ed448 with a
-   hash constant modified.
+Ed448ph is the same but with PH being SHAKE256(x, 64) and phflag being 1, i.e., the input is hashed before signing with
+Ed448 with a hash constant modified.
 
-   Value of context is set by signer and verifier (maximum of 255
-   octets; the default is empty string) and has to match octet by octet
-   for verification to be successful.
+Value of context is set by signer and verifier (maximum of 255 octets; the default is empty string) and has to match
+octet by octet for verification to be successful.
 
-   The curve is equivalent to Ed448-Goldilocks under change of the
-   basepoint, which preserves difficulty of the discrete logarithm.
-
-
-
-
-
-
-
-Josefsson & Liusvaara         Informational                    [Page 15]
-
-RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
-
+The curve is equivalent to Ed448-Goldilocks under change of the basepoint, which preserves difficulty of the discrete
+logarithm.
 
 5.2.1.  Modular Arithmetic
 
-   For advice on how to implement arithmetic modulo p = 2^448 - 2^224 -
-   1 efficiently and securely, see [ED448].  For inversion modulo p, it
-   is recommended to use the identity x^-1 = x^(p-2) (mod p).  Inverting
-   zero should never happen, as it would require invalid input, which
-   would have been detected before, or would be a calculation error.
+For advice on how to implement arithmetic modulo p = 2^448 - 2^224 - 1 efficiently and securely, see [ED448].  For
+inversion modulo p, it is recommended to use the identity x^-1 = x^(p-2) (mod p).  Inverting zero should never happen,
+as it would require invalid input, which would have been detected before, or would be a calculation error.
 
-   For point decoding or "decompression", square roots modulo p are
-   needed.  They can be computed by first computing candidate root
-   x = a ^ (p+1)/4 (mod p) and then checking if x^2 = a.  If it is, then
-   x is the square root of a; if it isn't, then a does not have a square
-   root.
+For point decoding or "decompression", square roots modulo p are needed.  They can be computed by first computing
+candidate root x = a ^ (p+1)/4 (mod p) and then checking if x^2 = a.  If it is, then x is the square root of a; if it
+isn't, then a does not have a square root.
 
 5.2.2.  Encoding
 
-   All values are coded as octet strings, and integers are coded using
-   little-endian convention, i.e., a 57-octet string h h[0],...h[56]
-   represents the integer h[0] + 2^8 * h[1] + ... + 2^448 * h[56].
+All values are coded as octet strings, and integers are coded using little-endian convention, i.e., a 57-octet string h
+h[0],...h[56] represents the integer h[0] + 2^8 * h[1] + ... + 2^448 * h[56].
 
-   A curve point (x,y), with coordinates in the range 0 <= x,y < p, is
-   coded as follows.  First, encode the y-coordinate as a little-endian
-   string of 57 octets.  The final octet is always zero.  To form the
-   encoding of the point, copy the least significant bit of the
-   x-coordinate to the most significant bit of the final octet.
+A curve point (x,y), with coordinates in the range 0 <= x,y < p, is coded as follows.  First, encode the y-coordinate as
+a little-endian string of 57 octets.  The final octet is always zero.  To form the encoding of the point, copy the least
+significant bit of the x-coordinate to the most significant bit of the final octet.
 
 5.2.3.  Decoding
 
-   Decoding a point, given as a 57-octet string, is a little more
-   complicated.
+Decoding a point, given as a 57-octet string, is a little more complicated.
 
-   1.  First, interpret the string as an integer in little-endian
-       representation.  Bit 455 of this number is the least significant
-       bit of the x-coordinate, and denote this value x_0.  The
-       y-coordinate is recovered simply by clearing this bit.  If the
-       resulting value is >= p, decoding fails.
+1.  First, interpret the string as an integer in little-endian representation.  Bit 455 of this number is the least
+    significant bit of the x-coordinate, and denote this value x_0.  The y-coordinate is recovered simply by clearing
+    this bit.  If the resulting value is >= p, decoding fails.
 
-   2.  To recover the x-coordinate, the curve equation implies
-       x^2 = (y^2 - 1) / (d y^2 - 1) (mod p).  The denominator is always
-       non-zero mod p.  Let u = y^2 - 1 and v = d y^2 - 1.  To compute
-       the square root of (u/v), the first step is to compute the
-       candidate root x = (u/v)^((p+1)/4).  This can be done using the
-       following trick, to use a single modular powering for both the
-       inversion of v and the square root:
+2.  To recover the x-coordinate, the curve equation implies x^2 = (y^2 - 1) / (d y^2 - 1) (mod p).  The denominator is
+    always non-zero mod p.  Let u = y^2 - 1 and v = d y^2 - 1.  To compute the square root of (u/v), the first step is
+    to compute the candidate root x = (u/v)^((p+1)/4).  This can be done using the following trick, to use a single
+    modular powering for both the inversion of v and the square root:
++
+[source,]
+----
+          (p+1)/4    3            (p-3)/4
+ x = (u/v)        = u  v (u^5 v^3)         (mod p)
+----
 
-                          (p+1)/4    3            (p-3)/4
-                 x = (u/v)        = u  v (u^5 v^3)         (mod p)
+3.  If v * x^2 = u, the recovered x-coordinate is x.  Otherwise, no square root exists, and the decoding fails.
 
-
-
-
-Josefsson & Liusvaara         Informational                    [Page 16]
-
-RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
-
-
-   3.  If v * x^2 = u, the recovered x-coordinate is x.  Otherwise, no
-       square root exists, and the decoding fails.
-
-   4.  Finally, use the x_0 bit to select the right square root.  If
-       x = 0, and x_0 = 1, decoding fails.  Otherwise, if x_0 != x mod
-       2, set x <-- p - x.  Return the decoded point (x,y).
+4.  Finally, use the x_0 bit to select the right square root.  If x = 0, and x_0 = 1, decoding fails.  Otherwise, if x_0
+    != x mod 2, set x <-- p - x.  Return the decoded point (x,y).
 
 5.2.4.  Point Addition
 
-   For point addition, the following method is recommended.  A point
-   (x,y) is represented in projective coordinates (X, Y, Z), with
-   x = X/Z, y = Y/Z.
+For point addition, the following method is recommended.  A point (x,y) is represented in projective coordinates (X, Y,
+Z), with x = X/Z, y = Y/Z.
 
-   The neutral point is (0,1), or equivalently in projective coordinates
-   (0, Z, Z) for any non-zero Z.
+The neutral point is (0,1), or equivalently in projective coordinates (0, Z, Z) for any non-zero Z.
 
-   The following formulas for adding two points, (x3,y3) =
-   (x1,y1)+(x2,y2) on untwisted Edwards curve (i.e., a=1) with non-
-   square d, are described in Section 4 of [Faster-ECC] and in
-   [EFD-ADD].  They are complete, i.e., they work for any pair of valid
-   input points.
+The following formulas for adding two points, (x3,y3) = (x1,y1)+(x2,y2) on untwisted Edwards curve (i.e., a=1) with non-
+square d, are described in Section 4 of [Faster-ECC] and in [EFD-ADD].  They are complete, i.e., they work for any pair
+of valid input points.
 
-                 A = Z1*Z2
-                 B = A^2
-                 C = X1*X2
-                 D = Y1*Y2
-                 E = d*C*D
-                 F = B-E
-                 G = B+E
-                 H = (X1+Y1)*(X2+Y2)
-                 X3 = A*F*(H-C-D)
-                 Y3 = A*G*(D-C)
-                 Z3 = F*G
+[source,]
+----
+A = Z1*Z2
+B = A^2
+C = X1*X2
+D = Y1*Y2
+E = d*C*D
+F = B-E
+G = B+E
+H = (X1+Y1)*(X2+Y2)
+X3 = A*F*(H-C-D)
+Y3 = A*G*(D-C)
+Z3 = F*G
+----
 
+Again, similar to the other curve, doubling formulas can be obtained by substituting equal points, turning four
+multiplications into squares.  However, this is not even nearly optimal; the following formulas described in Section 4
+of [Faster-ECC] and in [EFD-DBL] save multiple multiplications.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Josefsson & Liusvaara         Informational                    [Page 17]
-
-RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
-
-
-   Again, similar to the other curve, doubling formulas can be obtained
-   by substituting equal points, turning four multiplications into
-   squares.  However, this is not even nearly optimal; the following
-   formulas described in Section 4 of [Faster-ECC] and in [EFD-DBL] save
-   multiple multiplications.
-
-                 B = (X1+Y1)^2
-                 C = X1^2
-                 D = Y1^2
-                 E = C+D
-                 H = Z1^2
-                 J = E-2*H
-                 X3 = (B-E)*J
-                 Y3 = E*(C-D)
-                 Z3 = E*J
+[source,]
+----
+B = (X1+Y1)^2
+C = X1^2
+D = Y1^2
+E = C+D
+H = Z1^2
+J = E-2*H
+X3 = (B-E)*J
+Y3 = E*(C-D)
+Z3 = E*J
+----
 
 5.2.5.  Key Generation
 
-   The private key is 57 octets (456 bits, corresponding to b) of
-   cryptographically secure random data.  See [RFC4086] for a discussion
-   about randomness.
+The private key is 57 octets (456 bits, corresponding to b) of cryptographically secure random data.  See [RFC4086] for
+a discussion about randomness.
 
-   The 57-byte public key is generated by the following steps:
+The 57-byte public key is generated by the following steps:
 
-   1.  Hash the 57-byte private key using SHAKE256(x, 114), storing the
-       digest in a 114-octet large buffer, denoted h.  Only the lower 57
-       bytes are used for generating the public key.
+1.  Hash the 57-byte private key using SHAKE256(x, 114), storing the digest in a 114-octet large buffer, denoted h.
+    Only the lower 57 bytes are used for generating the public key.
 
-   2.  Prune the buffer: The two least significant bits of the first
-       octet are cleared, all eight bits the last octet are cleared, and
-       the highest bit of the second to last octet is set.
+2.  Prune the buffer: The two least significant bits of the first octet are cleared, all eight bits the last octet are
+    cleared, and the highest bit of the second to last octet is set.
 
-   3.  Interpret the buffer as the little-endian integer, forming a
-       secret scalar s.  Perform a known-base-point scalar
-       multiplication [s]B.
+3.  Interpret the buffer as the little-endian integer, forming a secret scalar s.  Perform a known-base-point scalar
+    multiplication [s]B.
 
-   4.  The public key A is the encoding of the point [s]B.  First encode
-       the y-coordinate (in the range 0 <= y < p) as a little-endian
-       string of 57 octets.  The most significant bit of the final octet
-       is always zero.  To form the encoding of the point [s]B, copy the
-       least significant bit of the x coordinate to the most significant
-       bit of the final octet.  The result is the public key.
-
-
-
-
-
-
-
-
-
-Josefsson & Liusvaara         Informational                    [Page 18]
-
-RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
-
+4.  The public key A is the encoding of the point [s]B.  First encode the y-coordinate (in the range 0 <= y < p) as a
+    little-endian string of 57 octets.  The most significant bit of the final octet is always zero.  To form the
+    encoding of the point [s]B, copy the least significant bit of the x coordinate to the most significant bit of the
+    final octet.  The result is the public key.
 
 5.2.6.  Sign
 
-   The inputs to the signing procedure is the private key, a 57-octet
-   string, a flag F, which is 0 for Ed448, 1 for Ed448ph, context C of
-   at most 255 octets, and a message M of arbitrary size.
+The inputs to the signing procedure is the private key, a 57-octet string, a flag F, which is 0 for Ed448, 1 for
+Ed448ph, context C of at most 255 octets, and a message M of arbitrary size.
 
-   1.  Hash the private key, 57 octets, using SHAKE256(x, 114).  Let h
-       denote the resulting digest.  Construct the secret scalar s from
-       the first half of the digest, and the corresponding public key A,
-       as described in the previous section.  Let prefix denote the
-       second half of the hash digest, h[57],...,h[113].
+1.  Hash the private key, 57 octets, using SHAKE256(x, 114).  Let h denote the resulting digest.  Construct the secret
+    scalar s from the first half of the digest, and the corresponding public key A, as described in the previous
+    section.  Let prefix denote the second half of the hash digest, h[57],...,h[113].
 
-   2.  Compute SHAKE256(dom4(F, C) || prefix || PH(M), 114), where M is
-       the message to be signed, F is 1 for Ed448ph, 0 for Ed448, and C
-       is the context to use.  Interpret the 114-octet digest as a
-       little-endian integer r.
+2.  Compute SHAKE256(dom4(F, C) || prefix || PH(M), 114), where M is the message to be signed, F is 1 for Ed448ph, 0 for
+    Ed448, and C is the context to use.  Interpret the 114-octet digest as a little-endian integer r.
 
-   3.  Compute the point [r]B.  For efficiency, do this by first
-       reducing r modulo L, the group order of B.  Let the string R be
-       the encoding of this point.
+3.  Compute the point [r]B.  For efficiency, do this by first reducing r modulo L, the group order of B.  Let the string
+    R be the encoding of this point.
 
-   4.  Compute SHAKE256(dom4(F, C) || R || A || PH(M), 114), and
-       interpret the 114-octet digest as a little-endian integer k.
+4.  Compute SHAKE256(dom4(F, C) || R || A || PH(M), 114), and interpret the 114-octet digest as a little-endian integer
+    k.
 
-   5.  Compute S = (r + k * s) mod L.  For efficiency, again reduce k
-       modulo L first.
+5.  Compute S = (r + k * s) mod L.  For efficiency, again reduce k modulo L first.
 
-   6.  Form the signature of the concatenation of R (57 octets) and the
-       little-endian encoding of S (57 octets; the ten most significant
-       bits of the final octets are always zero).
+6.  Form the signature of the concatenation of R (57 octets) and the little-endian encoding of S (57 octets; the ten
+    most significant bits of the final octets are always zero).
 
 5.2.7.  Verify
 
-   1.  To verify a signature on a message M using context C and public
-       key A, with F being 0 for Ed448 and 1 for Ed448ph, first split
-       the signature into two 57-octet halves.  Decode the first half as
-       a point R, and the second half as an integer S, in the range 0 <=
-       s < L.  Decode the public key A as point A'.  If any of the
-       decodings fail (including S being out of range), the signature is
-       invalid.
+1.  To verify a signature on a message M using context C and public key A, with F being 0 for Ed448 and 1 for Ed448ph,
+    first split the signature into two 57-octet halves.  Decode the first half as a point R, and the second half as an
+    integer S, in the range 0 <= s < L.  Decode the public key A as point A'.  If any of the decodings fail (including S
+    being out of range), the signature is invalid.
 
-   2.  Compute SHAKE256(dom4(F, C) || R || A || PH(M), 114), and
-       interpret the 114-octet digest as a little-endian integer k.
+2.  Compute SHAKE256(dom4(F, C) || R || A || PH(M), 114), and interpret the 114-octet digest as a little-endian integer
+    k.
 
-   3.  Check the group equation [4][S]B = [4]R + [4][k]A'.  It's
-       sufficient, but not required, to instead check [S]B = R + [k]A'.
+3.  Check the group equation [4][S]B = [4]R + [4][k]A'.  It's sufficient, but not required, to instead check [S]B = R +
+    [k]A'.
 
+== 6.  Ed25519 Python Illustration
 
+The rest of this section describes how Ed25519 can be implemented in Python (version 3.2 or later) for illustration.
+See Appendix A for the complete implementation and Appendix B for a test-driver to run it through some test vectors.
 
+Note that this code is not intended for production as it is not proven to be correct for all inputs, nor does it protect
+against side-channel attacks.  The purpose is to illustrate the algorithm to help implementers with their own
+implementation.
 
-
-Josefsson & Liusvaara         Informational                    [Page 19]
-
-RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
-
-
-6.  Ed25519 Python Illustration
-
-   The rest of this section describes how Ed25519 can be implemented in
-   Python (version 3.2 or later) for illustration.  See Appendix A for
-   the complete implementation and Appendix B for a test-driver to run
-   it through some test vectors.
-
-   Note that this code is not intended for production as it is not
-   proven to be correct for all inputs, nor does it protect against
-   side-channel attacks.  The purpose is to illustrate the algorithm to
-   help implementers with their own implementation.
-
+[source,python]
+----
 ## First, some preliminaries that will be needed.
 
 import hashlib
@@ -1117,17 +814,6 @@ def point_add(P, Q):
     C, D = 2 * P[3] * Q[3] * d % p, 2 * P[2] * Q[2] % p;
     E, F, G, H = B-A, D-C, D+C, B+A;
     return (E*F, G*H, F*G, E*H);
-
-
-
-
-
-
-
-Josefsson & Liusvaara         Informational                    [Page 20]
-
-RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
-
 
 # Computes Q = s * Q
 def point_mul(s, P):
@@ -1175,16 +861,6 @@ def recover_x(y, sign):
         x = p - x
     return x
 
-
-
-
-
-
-Josefsson & Liusvaara         Informational                    [Page 21]
-
-RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
-
-
 # Base point
 g_y = 4 * modp_inv(5) % p
 g_x = recover_x(g_y, 0)
@@ -1224,23 +900,6 @@ def secret_to_public(secret):
     (a, dummy) = secret_expand(secret)
     return point_compress(point_mul(a, G))
 
-
-
-
-
-
-
-
-
-
-
-
-
-Josefsson & Liusvaara         Informational                    [Page 22]
-
-RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
-
-
 ## The signature function works as below.
 
 def sign(secret, msg):
@@ -1273,35 +932,21 @@ def verify(public, msg, signature):
     sB = point_mul(s, G)
     hA = point_mul(h, A)
     return point_equal(sB, point_add(R, hA))
+----
 
-7.  Test Vectors
+== 7.  Test Vectors
 
-   This section contains test vectors for Ed25519ph, Ed25519ctx,
-   Ed448ph, Ed25519, and Ed448.
+This section contains test vectors for Ed25519ph, Ed25519ctx, Ed448ph, Ed25519, and Ed448.
 
-   Each section contains a sequence of test vectors.  The octets are hex
-   encoded, and whitespace is inserted for readability.  Ed25519,
-   Ed25519ctx, and Ed25519ph private and public keys are 32 octets;
-   signatures are 64 octets.  Ed448 and Ed448ph private and public keys
-   are 57 octets; signatures are 114 octets.  Messages are of arbitrary
-   length.  If the context is non-empty, it is given as 1-255 octets.
-
-
-
-
-
-
-
-Josefsson & Liusvaara         Informational                    [Page 23]
-
-RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
-
+Each section contains a sequence of test vectors.  The octets are hex encoded, and whitespace is inserted for
+readability.  Ed25519, Ed25519ctx, and Ed25519ph private and public keys are 32 octets; signatures are 64 octets.  Ed448
+and Ed448ph private and public keys are 57 octets; signatures are 114 octets.  Messages are of arbitrary length.  If the
+context is non-empty, it is given as 1-255 octets.
 
 7.1.  Test Vectors for Ed25519
 
-   These test vectors are taken from [ED25519-TEST-VECTORS] (but we
-   removed the public key as a suffix of the private key and removed the
-   message from the signature) and [ED25519-LIBGCRYPT-TEST-VECTORS].
+These test vectors are taken from [ED25519-TEST-VECTORS] (but we removed the public key as a suffix of the private key
+and removed the message from the signature) and [ED25519-LIBGCRYPT-TEST-VECTORS].
 
    -----TEST 1
 
@@ -2193,7 +1838,7 @@ Josefsson & Liusvaara         Informational                    [Page 39]
 RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
 
 
-8.  Security Considerations
+== 8.  Security Considerations
 
 8.1.  Side-Channel Leaks
 
@@ -2390,32 +2035,27 @@ RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
    the estimated 256-bit security level against collisions and preimages
    is sufficient to pair with a 224-bit level elliptic curve.
 
-9.  References
+== 9.  References
 
-9.1.  Normative References
+=== 9.1.  Normative References
 
-   [FIPS202]  National Institute of Standards and Technology, "SHA-3
-              Standard: Permutation-Based Hash and Extendable-Output
-              Functions", FIPS PUB 202, August 2015,
-              <http://dx.doi.org/10.6028/NIST.FIPS.202>.
+* [FIPS202]
+  ** National Institute of Standards and Technology, "SHA-3
+  ** Standard: Permutation-Based Hash and Extendable-Output
+  ** Functions", FIPS PUB 202, August 2015,
+  ** <http://dx.doi.org/10.6028/NIST.FIPS.202>.
 
-   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
-              Requirement Levels", BCP 14, RFC 2119, DOI
-              10.17487/RFC2119, March 1997,
-              <http://www.rfc-editor.org/info/rfc2119>.
+* [RFC2119]
+  ** Bradner, S., "Key words for use in RFCs to Indicate
+  ** Requirement Levels", BCP 14, RFC 2119, DOI
+  ** 10.17487/RFC2119, March 1997,
+  ** <http://www.rfc-editor.org/info/rfc2119>.
 
-   [RFC6234]  Eastlake 3rd, D. and T. Hansen, "US Secure Hash Algorithms
-              (SHA and SHA-based HMAC and HKDF)", RFC 6234,
-              DOI 10.17487/RFC6234, May 2011,
-              <http://www.rfc-editor.org/info/rfc6234>.
-
-
-
-
-Josefsson & Liusvaara         Informational                    [Page 43]
-
-RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
-
+* [RFC6234]
+  ** Eastlake 3rd, D. and T. Hansen, "US Secure Hash Algorithms
+  ** (SHA and SHA-based HMAC and HKDF)", RFC 6234,
+  ** DOI 10.17487/RFC6234, May 2011,
+  ** <http://www.rfc-editor.org/info/rfc6234>.
 
    [RFC7748]  Langley, A., Hamburg, M., and S. Turner, "Elliptic Curves
               for Security", RFC 7748, DOI 10.17487/RFC7748, January
@@ -2537,780 +2177,6 @@ Appendix A.  Ed25519/Ed448 Python Library
    Note: This code is not intended for production.  Although it should
    produce correct results for every input, it is slow and makes no
    attempt to avoid side-channel attacks.
-
-import hashlib;
-import os;
-
-#Compute candidate square root of x modulo p, with p = 3 (mod 4).
-def sqrt4k3(x,p): return pow(x,(p + 1)//4,p)
-
-#Compute candidate square root of x modulo p, with p = 5 (mod 8).
-def sqrt8k5(x,p):
-    y = pow(x,(p+3)//8,p)
-    #If the square root exists, it is either y or y*2^(p-1)/4.
-    if (y * y) % p == x % p: return y
-    else:
-        z = pow(2,(p - 1)//4,p)
-        return (y * z) % p
-
-#Decode a hexadecimal string representation of the integer.
-def hexi(s): return int.from_bytes(bytes.fromhex(s),byteorder="big")
-
-#Rotate a word x by b places to the left.
-def rol(x,b): return ((x << b) | (x >> (64 - b))) & (2**64-1)
-
-#From little endian.
-def from_le(s): return int.from_bytes(s, byteorder="little")
-
-#Do the SHA-3 state transform on state s.
-def sha3_transform(s):
-    ROTATIONS = [0,1,62,28,27,36,44,6,55,20,3,10,43,25,39,41,45,15,\
-                 21,8,18,2,61,56,14]
-    PERMUTATION = [1,6,9,22,14,20,2,12,13,19,23,15,4,24,21,8,16,5,3,\
-                   18,17,11,7,10]
-    RC = [0x0000000000000001,0x0000000000008082,0x800000000000808a,\
-          0x8000000080008000,0x000000000000808b,0x0000000080000001,\
-          0x8000000080008081,0x8000000000008009,0x000000000000008a,\
-          0x0000000000000088,0x0000000080008009,0x000000008000000a,\
-          0x000000008000808b,0x800000000000008b,0x8000000000008089,\
-          0x8000000000008003,0x8000000000008002,0x8000000000000080,\
-          0x000000000000800a,0x800000008000000a,0x8000000080008081,\
-          0x8000000000008080,0x0000000080000001,0x8000000080008008]
-
-
-
-
-Josefsson & Liusvaara         Informational                    [Page 46]
-
-RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
-
-
-    for rnd in range(0,24):
-        #AddColumnParity (Theta)
-        c = [0]*5;
-        d = [0]*5;
-        for i in range(0,25): c[i%5]^=s[i]
-        for i in range(0,5): d[i]=c[(i+4)%5]^rol(c[(i+1)%5],1)
-        for i in range(0,25): s[i]^=d[i%5]
-        #RotateWords (Rho)
-        for i in range(0,25): s[i]=rol(s[i],ROTATIONS[i])
-        #PermuteWords (Pi)
-        t = s[PERMUTATION[0]]
-        for i in range(0,len(PERMUTATION)-1):
-            s[PERMUTATION[i]]=s[PERMUTATION[i+1]]
-        s[PERMUTATION[-1]]=t;
-        #NonlinearMixRows (Chi)
-        for i in range(0,25,5):
-            t=[s[i],s[i+1],s[i+2],s[i+3],s[i+4],s[i],s[i+1]]
-            for j in range(0,5): s[i+j]=t[j]^((~t[j+1])&(t[j+2]))
-        #AddRoundConstant (Iota)
-        s[0]^=RC[rnd]
-
-#Reinterpret octet array b to word array and XOR it to state s.
-def reinterpret_to_words_and_xor(s,b):
-    for j in range(0,len(b)//8):
-        s[j]^=from_le(b[8*j:][:8])
-
-#Reinterpret word array w to octet array and return it.
-def reinterpret_to_octets(w):
-    mp=bytearray()
-    for j in range(0,len(w)):
-        mp+=w[j].to_bytes(8,byteorder="little")
-    return mp
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Josefsson & Liusvaara         Informational                    [Page 47]
-
-RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
-
-
-#(semi-)generic SHA-3 implementation
-def sha3_raw(msg,r_w,o_p,e_b):
-    r_b=8*r_w
-    s=[0]*25
-    #Handle whole blocks.
-    idx=0
-    blocks=len(msg)//r_b
-    for i in range(0,blocks):
-        reinterpret_to_words_and_xor(s,msg[idx:][:r_b])
-        idx+=r_b
-        sha3_transform(s)
-    #Handle last block padding.
-    m=bytearray(msg[idx:])
-    m.append(o_p)
-    while len(m) < r_b: m.append(0)
-    m[len(m)-1]|=128
-    #Handle padded last block.
-    reinterpret_to_words_and_xor(s,m)
-    sha3_transform(s)
-    #Output.
-    out = bytearray()
-    while len(out)<e_b:
-        out+=reinterpret_to_octets(s[:r_w])
-        sha3_transform(s)
-    return out[:e_b]
-
-#Implementation of SHAKE256 functions.
-def shake256(msg,olen): return sha3_raw(msg,17,31,olen)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Josefsson & Liusvaara         Informational                    [Page 48]
-
-RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
-
-
-#A (prime) field element.
-class Field:
-    #Construct number x (mod p).
-    def __init__(self,x,p):
-        self.__x=x%p
-        self.__p=p
-    #Check that fields of self and y are the same.
-    def __check_fields(self,y):
-        if type(y) is not Field or self.__p!=y.__p:
-            raise ValueError("Fields don't match")
-    #Field addition.  The fields must match.
-    def __add__(self,y):
-        self.__check_fields(y)
-        return Field(self.__x+y.__x,self.__p)
-    #Field subtraction.  The fields must match.
-    def __sub__(self,y):
-        self.__check_fields(y)
-        return Field(self.__p+self.__x-y.__x,self.__p)
-    #Field negation.
-    def __neg__(self):
-        return Field(self.__p-self.__x,self.__p)
-    #Field multiplication.  The fields must match.
-    def __mul__(self,y):
-        self.__check_fields(y)
-        return Field(self.__x*y.__x,self.__p)
-    #Field division.  The fields must match.
-    def __truediv__(self,y):
-        return self*y.inv()
-    #Field inverse (inverse of 0 is 0).
-    def inv(self):
-        return Field(pow(self.__x,self.__p-2,self.__p),self.__p)
-    #Field square root.  Returns none if square root does not exist.
-    #Note: not presently implemented for p mod 8 = 1 case.
-    def sqrt(self):
-        #Compute candidate square root.
-        if self.__p%4==3: y=sqrt4k3(self.__x,self.__p)
-        elif self.__p%8==5: y=sqrt8k5(self.__x,self.__p)
-        else: raise NotImplementedError("sqrt(_,8k+1)")
-        _y=Field(y,self.__p);
-        #Check square root candidate valid.
-        return _y if _y*_y==self else None
-    #Make the field element with the same field as this, but
-    #with a different value.
-    def make(self,ival): return Field(ival,self.__p)
-    #Is the field element the additive identity?
-    def iszero(self): return self.__x==0
-    #Are field elements equal?
-    def __eq__(self,y): return self.__x==y.__x and self.__p==y.__p
-
-
-
-Josefsson & Liusvaara         Informational                    [Page 49]
-
-RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
-
-
-    #Are field elements not equal?
-    def __ne__(self,y): return not (self==y)
-    #Serialize number to b-1 bits.
-    def tobytes(self,b):
-        return self.__x.to_bytes(b//8,byteorder="little")
-    #Unserialize number from bits.
-    def frombytes(self,x,b):
-        rv=from_le(x)%(2**(b-1))
-        return Field(rv,self.__p) if rv<self.__p else None
-    #Compute sign of number, 0 or 1.  The sign function
-    #has the following property:
-    #sign(x) = 1 - sign(-x) if x != 0.
-    def sign(self): return self.__x%2
-
-#A point on (twisted) Edwards curve.
-class EdwardsPoint:
-    #base_field = None
-    #x = None
-    #y = None
-    #z = None
-    def initpoint(self, x, y):
-        self.x=x
-        self.y=y
-        self.z=self.base_field.make(1)
-    def decode_base(self,s,b):
-        #Check that point encoding is the correct length.
-        if len(s)!=b//8: return (None,None)
-        #Extract signbit.
-        xs=s[(b-1)//8]>>((b-1)&7)
-        #Decode y.  If this fails, fail.
-        y = self.base_field.frombytes(s,b)
-        if y is None: return (None,None)
-        #Try to recover x.  If it does not exist, or if zero and xs
-        #are wrong, fail.
-        x=self.solve_x2(y).sqrt()
-        if x is None or (x.iszero() and xs!=x.sign()):
-            return (None,None)
-        #If sign of x isn't correct, flip it.
-        if x.sign()!=xs: x=-x
-        # Return the constructed point.
-        return (x,y)
-    def encode_base(self,b):
-        xp,yp=self.x/self.z,self.y/self.z
-        #Encode y.
-        s=bytearray(yp.tobytes(b))
-        #Add sign bit of x to encoding.
-        if xp.sign()!=0: s[(b-1)//8]|=1<<(b-1)%8
-        return s
-
-
-
-Josefsson & Liusvaara         Informational                    [Page 50]
-
-RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
-
-
-    def __mul__(self,x):
-        r=self.zero_elem()
-        s=self
-        while x > 0:
-            if (x%2)>0:
-                r=r+s
-            s=s.double()
-            x=x//2
-        return r
-    #Check that two points are equal.
-    def __eq__(self,y):
-        #Need to check x1/z1 == x2/z2 and similarly for y, so cross
-        #multiply to eliminate divisions.
-        xn1=self.x*y.z
-        xn2=y.x*self.z
-        yn1=self.y*y.z
-        yn2=y.y*self.z
-        return xn1==xn2 and yn1==yn2
-    #Check if two points are not equal.
-    def __ne__(self,y): return not (self==y)
-
-#A point on Edwards25519.
-class Edwards25519Point(EdwardsPoint):
-    #Create a new point on the curve.
-    base_field=Field(1,2**255-19)
-    d=-base_field.make(121665)/base_field.make(121666)
-    f0=base_field.make(0)
-    f1=base_field.make(1)
-    xb=base_field.make(hexi("216936D3CD6E53FEC0A4E231FDD6DC5C692CC76"+\
-        "09525A7B2C9562D608F25D51A"))
-    yb=base_field.make(hexi("666666666666666666666666666666666666666"+\
-        "6666666666666666666666658"))
-    #The standard base point.
-    @staticmethod
-    def stdbase():
-        return Edwards25519Point(Edwards25519Point.xb,\
-            Edwards25519Point.yb)
-    def __init__(self,x,y):
-        #Check the point is actually on the curve.
-        if y*y-x*x!=self.f1+self.d*x*x*y*y:
-            raise ValueError("Invalid point")
-        self.initpoint(x, y)
-        self.t=x*y
-    #Decode a point representation.
-    def decode(self,s):
-        x,y=self.decode_base(s,256);
-        return Edwards25519Point(x, y) if x is not None else None
-
-
-
-
-Josefsson & Liusvaara         Informational                    [Page 51]
-
-RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
-
-
-    #Encode a point representation.
-    def encode(self):
-        return self.encode_base(256)
-    #Construct a neutral point on this curve.
-    def zero_elem(self):
-        return Edwards25519Point(self.f0,self.f1)
-    #Solve for x^2.
-    def solve_x2(self,y):
-        return ((y*y-self.f1)/(self.d*y*y+self.f1))
-    #Point addition.
-    def __add__(self,y):
-        #The formulas are from EFD.
-        tmp=self.zero_elem()
-        zcp=self.z*y.z
-        A=(self.y-self.x)*(y.y-y.x)
-        B=(self.y+self.x)*(y.y+y.x)
-        C=(self.d+self.d)*self.t*y.t
-        D=zcp+zcp
-        E,H=B-A,B+A
-        F,G=D-C,D+C
-        tmp.x,tmp.y,tmp.z,tmp.t=E*F,G*H,F*G,E*H
-        return tmp
-    #Point doubling.
-    def double(self):
-        #The formulas are from EFD (with assumption a=-1 propagated).
-        tmp=self.zero_elem()
-        A=self.x*self.x
-        B=self.y*self.y
-        Ch=self.z*self.z
-        C=Ch+Ch
-        H=A+B
-        xys=self.x+self.y
-        E=H-xys*xys
-        G=A-B
-        F=C+G
-        tmp.x,tmp.y,tmp.z,tmp.t=E*F,G*H,F*G,E*H
-        return tmp
-    #Order of basepoint.
-    def l(self):
-        return hexi("1000000000000000000000000000000014def9dea2f79cd"+\
-            "65812631a5cf5d3ed")
-    #The logarithm of cofactor.
-    def c(self): return 3
-    #The highest set bit
-    def n(self): return 254
-    #The coding length
-    def b(self): return 256
-
-
-
-
-Josefsson & Liusvaara         Informational                    [Page 52]
-
-RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
-
-
-    #Validity check (for debugging)
-    def is_valid_point(self):
-        x,y,z,t=self.x,self.y,self.z,self.t
-        x2=x*x
-        y2=y*y
-        z2=z*z
-        lhs=(y2-x2)*z2
-        rhs=z2*z2+self.d*x2*y2
-        assert(lhs == rhs)
-        assert(t*z == x*y)
-
-#A point on Edwards448.
-class Edwards448Point(EdwardsPoint):
-    #Create a new point on the curve.
-    base_field=Field(1,2**448-2**224-1)
-    d=base_field.make(-39081)
-    f0=base_field.make(0)
-    f1=base_field.make(1)
-    xb=base_field.make(hexi("4F1970C66BED0DED221D15A622BF36DA9E14657"+\
-        "0470F1767EA6DE324A3D3A46412AE1AF72AB66511433B80E18B00938E26"+\
-        "26A82BC70CC05E"))
-    yb=base_field.make(hexi("693F46716EB6BC248876203756C9C7624BEA737"+\
-        "36CA3984087789C1E05A0C2D73AD3FF1CE67C39C4FDBD132C4ED7C8AD98"+\
-        "08795BF230FA14"))
-    #The standard base point.
-    @staticmethod
-    def stdbase():
-        return Edwards448Point(Edwards448Point.xb,Edwards448Point.yb)
-    def __init__(self,x,y):
-        #Check that the point is actually on the curve.
-        if y*y+x*x!=self.f1+self.d*x*x*y*y:
-            raise ValueError("Invalid point")
-        self.initpoint(x, y)
-    #Decode a point representation.
-    def decode(self,s):
-        x,y=self.decode_base(s,456);
-        return Edwards448Point(x, y) if x is not None else None
-    #Encode a point representation.
-    def encode(self):
-        return self.encode_base(456)
-    #Construct a neutral point on this curve.
-    def zero_elem(self):
-        return Edwards448Point(self.f0,self.f1)
-    #Solve for x^2.
-    def solve_x2(self,y):
-        return ((y*y-self.f1)/(self.d*y*y-self.f1))
-
-
-
-
-
-Josefsson & Liusvaara         Informational                    [Page 53]
-
-RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
-
-
-    #Point addition.
-    def __add__(self,y):
-        #The formulas are from EFD.
-        tmp=self.zero_elem()
-        xcp,ycp,zcp=self.x*y.x,self.y*y.y,self.z*y.z
-        B=zcp*zcp
-        E=self.d*xcp*ycp
-        F,G=B-E,B+E
-        tmp.x=zcp*F*((self.x+self.y)*(y.x+y.y)-xcp-ycp)
-        tmp.y,tmp.z=zcp*G*(ycp-xcp),F*G
-        return tmp
-    #Point doubling.
-    def double(self):
-        #The formulas are from EFD.
-        tmp=self.zero_elem()
-        x1s,y1s,z1s=self.x*self.x,self.y*self.y,self.z*self.z
-        xys=self.x+self.y
-        F=x1s+y1s
-        J=F-(z1s+z1s)
-        tmp.x,tmp.y,tmp.z=(xys*xys-x1s-y1s)*J,F*(x1s-y1s),F*J
-        return tmp
-    #Order of basepoint.
-    def l(self):
-        return hexi("3ffffffffffffffffffffffffffffffffffffffffffffff"+\
-            "fffffffff7cca23e9c44edb49aed63690216cc2728dc58f552378c2"+\
-            "92ab5844f3")
-    #The logarithm of cofactor.
-    def c(self): return 2
-    #The highest set bit.
-    def n(self): return 447
-    #The coding length.
-    def b(self): return 456
-    #Validity check (for debugging).
-    def is_valid_point(self):
-        x,y,z=self.x,self.y,self.z
-        x2=x*x
-        y2=y*y
-        z2=z*z
-        lhs=(x2+y2)*z2
-        rhs=z2*z2+self.d*x2*y2
-        assert(lhs == rhs)
-
-
-
-
-
-
-
-
-
-
-Josefsson & Liusvaara         Informational                    [Page 54]
-
-RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
-
-
-#Simple self-check.
-def curve_self_check(point):
-    p=point
-    q=point.zero_elem()
-    z=q
-    l=p.l()+1
-    p.is_valid_point()
-    q.is_valid_point()
-    for i in range(0,point.b()):
-        if (l>>i)&1 != 0:
-            q=q+p
-            q.is_valid_point()
-        p=p.double()
-        p.is_valid_point()
-    assert q.encode() == point.encode()
-    assert q.encode() != p.encode()
-    assert q.encode() != z.encode()
-
-#Simple self-check.
-def self_check_curves():
-    curve_self_check(Edwards25519Point.stdbase())
-    curve_self_check(Edwards448Point.stdbase())
-
-#PureEdDSA scheme.
-#Limitation: only b mod 8 = 0 is handled.
-class PureEdDSA:
-    #Create a new object.
-    def __init__(self,properties):
-        self.B=properties["B"]
-        self.H=properties["H"]
-        self.l=self.B.l()
-        self.n=self.B.n()
-        self.b=self.B.b()
-        self.c=self.B.c()
-    #Clamp a private scalar.
-    def __clamp(self,a):
-        _a = bytearray(a)
-        for i in range(0,self.c): _a[i//8]&=~(1<<(i%8))
-        _a[self.n//8]|=1<<(self.n%8)
-        for i in range(self.n+1,self.b): _a[i//8]&=~(1<<(i%8))
-        return _a
-    #Generate a key.  If privkey is None, a random one is generated.
-    #In any case, the (privkey, pubkey) pair is returned.
-    def keygen(self,privkey):
-        #If no private key data is given, generate random.
-        if privkey is None: privkey=os.urandom(self.b//8)
-
-
-
-
-
-Josefsson & Liusvaara         Informational                    [Page 55]
-
-RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
-
-
-        #Expand key.
-        khash=self.H(privkey,None,None)
-        a=from_le(self.__clamp(khash[:self.b//8]))
-        #Return the key pair (public key is A=Enc(aB).
-        return privkey,(self.B*a).encode()
-    #Sign with key pair.
-    def sign(self,privkey,pubkey,msg,ctx,hflag):
-        #Expand key.
-        khash=self.H(privkey,None,None)
-        a=from_le(self.__clamp(khash[:self.b//8]))
-        seed=khash[self.b//8:]
-        #Calculate r and R (R only used in encoded form).
-        r=from_le(self.H(seed+msg,ctx,hflag))%self.l
-        R=(self.B*r).encode()
-        #Calculate h.
-        h=from_le(self.H(R+pubkey+msg,ctx,hflag))%self.l
-        #Calculate s.
-        S=((r+h*a)%self.l).to_bytes(self.b//8,byteorder="little")
-        #The final signature is a concatenation of R and S.
-        return R+S
-    #Verify signature with public key.
-    def verify(self,pubkey,msg,sig,ctx,hflag):
-        #Sanity-check sizes.
-        if len(sig)!=self.b//4: return False
-        if len(pubkey)!=self.b//8: return False
-        #Split signature into R and S, and parse.
-        Rraw,Sraw=sig[:self.b//8],sig[self.b//8:]
-        R,S=self.B.decode(Rraw),from_le(Sraw)
-        #Parse public key.
-        A=self.B.decode(pubkey)
-        #Check parse results.
-        if (R is None) or (A is None) or S>=self.l: return False
-        #Calculate h.
-        h=from_le(self.H(Rraw+pubkey+msg,ctx,hflag))%self.l
-        #Calculate left and right sides of check eq.
-        rhs=R+(A*h)
-        lhs=self.B*S
-        for i in range(0, self.c):
-            lhs = lhs.double()
-            rhs = rhs.double()
-        #Check eq. holds?
-        return lhs==rhs
-
-def Ed25519_inthash(data,ctx,hflag):
-    if (ctx is not None and len(ctx) > 0) or hflag:
-        raise ValueError("Contexts/hashes not supported")
-    return hashlib.sha512(data).digest()
-
-
-
-
-Josefsson & Liusvaara         Informational                    [Page 56]
-
-RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
-
-
-#The base PureEdDSA schemes.
-pEd25519=PureEdDSA({\
-    "B":Edwards25519Point.stdbase(),\
-    "H":Ed25519_inthash\
-})
-
-def Ed25519ctx_inthash(data,ctx,hflag):
-    dompfx = b""
-    PREFIX=b"SigEd25519 no Ed25519 collisions"
-    if ctx is not None:
-        if len(ctx) > 255: raise ValueError("Context too big")
-        dompfx=PREFIX+bytes([1 if hflag else 0,len(ctx)])+ctx
-    return hashlib.sha512(dompfx+data).digest()
-
-pEd25519ctx=PureEdDSA({\
-    "B":Edwards25519Point.stdbase(),\
-    "H":Ed25519ctx_inthash\
-})
-
-def Ed448_inthash(data,ctx,hflag):
-    dompfx = b""
-    if ctx is not None:
-        if len(ctx) > 255: raise ValueError("Context too big")
-        dompfx=b"SigEd448"+bytes([1 if hflag else 0,len(ctx)])+ctx
-    return shake256(dompfx+data,114)
-
-pEd448 = PureEdDSA({\
-    "B":Edwards448Point.stdbase(),\
-    "H":Ed448_inthash\
-})
-
-#EdDSA scheme.
-class EdDSA:
-    #Create a new scheme object, with the specified PureEdDSA base
-    #scheme and specified prehash.
-    def __init__(self,pure_scheme,prehash):
-        self.__pflag = True
-        self.__pure=pure_scheme
-        self.__prehash=prehash
-        if self.__prehash is None:
-            self.__prehash = lambda x,y:x
-            self.__pflag = False
-    # Generate a key.  If privkey is none, it generates a random
-    # privkey key, otherwise it uses a specified private key.
-    # Returns pair (privkey, pubkey).
-    def keygen(self,privkey): return self.__pure.keygen(privkey)
-
-
-
-
-
-Josefsson & Liusvaara         Informational                    [Page 57]
-
-RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
-
-
-    # Sign message msg using specified key pair.
-    def sign(self,privkey,pubkey,msg,ctx=None):
-        if ctx is None: ctx=b"";
-        return self.__pure.sign(privkey,pubkey,self.__prehash(msg,ctx),\
-            ctx,self.__pflag)
-    # Verify signature sig on message msg using public key pubkey.
-    def verify(self,pubkey,msg,sig,ctx=None):
-        if ctx is None: ctx=b"";
-        return self.__pure.verify(pubkey,self.__prehash(msg,ctx),sig,\
-            ctx,self.__pflag)
-
-def Ed448ph_prehash(data,ctx):
-    return shake256(data,64)
-
-#Our signature schemes.
-Ed25519 = EdDSA(pEd25519,None)
-Ed25519ctx = EdDSA(pEd25519ctx,None)
-Ed25519ph = EdDSA(pEd25519ctx,lambda x,y:hashlib.sha512(x).digest())
-Ed448 = EdDSA(pEd448,None)
-Ed448ph = EdDSA(pEd448,Ed448ph_prehash)
-
-def eddsa_obj(name):
-    if name == "Ed25519": return Ed25519
-    if name == "Ed25519ctx": return Ed25519ctx
-    if name == "Ed25519ph": return Ed25519ph
-    if name == "Ed448": return Ed448
-    if name == "Ed448ph": return Ed448ph
-    raise NotImplementedError("Algorithm not implemented")
-
-Appendix B.  Library Driver
-
-   Below is a command-line tool that uses the library above to perform
-   computations for interactive use or for self-checking.
-
-import sys
-import binascii
-
-from eddsa2 import Ed25519
-
-
-def munge_string(s, pos, change):
-    return (s[:pos] +
-            int.to_bytes(s[pos] ^ change, 1, "little") +
-            s[pos+1:])
-
-
-
-
-
-
-
-Josefsson & Liusvaara         Informational                    [Page 58]
-
-RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
-
-
-# Read a file in the format of
-# http://ed25519.cr.yp.to/python/sign.input
-lineno = 0
-while True:
-    line = sys.stdin.readline()
-    if not line:
-        break
-    lineno = lineno + 1
-    print(lineno)
-    fields = line.split(":")
-    secret = (binascii.unhexlify(fields[0]))[:32]
-    public = binascii.unhexlify(fields[1])
-    msg = binascii.unhexlify(fields[2])
-    signature = binascii.unhexlify(fields[3])[:64]
-
-    privkey,pubkey = Ed25519.keygen(secret)
-    assert public == pubkey
-    assert signature == Ed25519.sign(privkey, pubkey, msg)
-    assert Ed25519.verify(public, msg, signature)
-    if len(msg) == 0:
-        bad_msg = b"x"
-    else:
-        bad_msg = munge_string(msg, len(msg) // 3, 4)
-    assert not Ed25519.verify(public,bad_msg,signature)
-    assert not Ed25519.verify(public, msg, munge_string(signature,20,8))
-    assert not Ed25519.verify(public,msg,munge_string(signature,40,16))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Josefsson & Liusvaara         Informational                    [Page 59]
-
-RFC 8032                EdDSA: Ed25519 and Ed448            January 2017
 
 
 Acknowledgements

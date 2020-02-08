@@ -1,11 +1,11 @@
 
 = 01 - OpenSSL - briansmith cheatsheet
 
-*https://gist.github.com/briansmith/2ee42439923d8e65a266994d0f70180b*
+* https://gist.github.com/briansmith/2ee42439923d8e65a266994d0f70180b
+* @ https://gist.github.com/briansmith
+* mentve: '20-02-08*
 
-(@https://gist.github.com/briansmith) (mentve: '20-02-08)
-
-# How to Generate & Use Private Keys using OpenSSL's Command Line Tool
+== How to Generate & Use Private Keys using OpenSSL's Command Line Tool
 
 These commands generate and use private keys in unencrypted binary (not Base64 “PEM”) PKCS#8 format. The PKCS#8 format
 is used here because it is the most interoperable format when dealing with software that isn't based on OpenSSL.
@@ -17,11 +17,11 @@ genpkey`, and `openssl pkcs8`, regardless of the type of key.
 The first section describes how to generate private keys. The second and third sections describe how to extract the
 public key from the generated private key. The last section describes how to inspect a private key's metadata.
 
-== Generating Private Keys
+=== Generating Private Keys
 
 Ed25519 isn't listed here because OpenSSL's command line utilities do not support Ed25519 keys yet.
 
-=== ECC
+==== ECC
 
 The key will use the named curve form, i.e. *the only correct form*, which unfortunately isn't the default form in all
 versions of OpenSSL.
@@ -29,7 +29,7 @@ versions of OpenSSL.
 The algorithm identifier will be `id-ecPublicKey` (`1.2.840.10045.2.1`), which is what software for signing and
 verifying ECDSA signatures expects.
 
-==== ECC P-256
+===== ECC P-256
 
 [source,sh]
 ----
@@ -39,7 +39,7 @@ openssl genpkey -algorithm EC \
   openssl pkcs8 -topk8 -nocrypt -outform der > p256-private-key.p8
 ----
 
-==== ECC P-384
+===== ECC P-384
 
 [source,sh]
 ----
@@ -49,7 +49,7 @@ openssl genpkey -algorithm EC \
   openssl pkcs8 -topk8 -nocrypt -outform der > p384-private-key.p8
 ----
 
-=== RSA
+==== RSA
 
 The key will have two primes (i.e. it will not be a multi-prime key), and public exponent 65537, which are by far the
 most interoperable parameters. Unless you have special requirements, generate a 2048-bit key.
@@ -58,7 +58,7 @@ The key's algorithm identifier is `rsaEncryption` (`1.2.840.113549.1.1.1`), whic
 all software will accept keys marked as such for use in RSA encryption and for RSA PKCS#1 1.5 signatures and RSA-PSS
 signatures.
 
-==== 2048-bit RSA
+===== 2048-bit RSA
 
 [source,sh]
 ----
@@ -68,7 +68,7 @@ openssl genpkey -algorithm RSA \
   openssl pkcs8 -topk8 -nocrypt -outform der > rsa-2048-private-key.p8
 ----
 
-==== 3072-bit RSA
+===== 3072-bit RSA
 
 [source,sh]
 ----
@@ -78,7 +78,7 @@ openssl genpkey -algorithm RSA \
   openssl pkcs8 -topk8 -nocrypt -outform der > rsa-3072-private-key.p8
 ----
 
-== Extracting the Public Key from the Private Key as a SubjectPublicKeyInfo.
+=== Extracting the Public Key from the Private Key as a SubjectPublicKeyInfo.
 
 PKCS#8 files are self-describing, and PKCS#8 private key files contain the public key, so the public key can be
 extracted from the private key file:

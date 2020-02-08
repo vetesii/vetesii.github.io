@@ -1,11 +1,14 @@
 
 = 90 - rfc7518 - JWA
 
-Text verzió (mentve: '20-02-01): https://tools.ietf.org/rfc/rfc7518.txt
+* Text verzió
+* mentve: '20-02-01
+* https://tools.ietf.org/rfc/rfc7518.txt
 
 == Text verzió - https://tools.ietf.org/rfc/rfc7518.txt
 
-
+[source,]
+----
 Internet Engineering Task Force (IETF)                          M. Jones
 Request for Comments: 7518                                     Microsoft
 Category: Standards Track                                       May 2015
@@ -13,55 +16,36 @@ ISSN: 2070-1721
 
 
                        JSON Web Algorithms (JWA)
+----
 
-Abstract
+*Abstract*
 
-   This specification registers cryptographic algorithms and identifiers
-   to be used with the JSON Web Signature (JWS), JSON Web Encryption
-   (JWE), and JSON Web Key (JWK) specifications.  It defines several
-   IANA registries for these identifiers.
+This specification registers cryptographic algorithms and identifiers to be used with the JSON Web Signature (JWS), JSON
+Web Encryption (JWE), and JSON Web Key (JWK) specifications.  It defines several IANA registries for these identifiers.
 
-Status of This Memo
+*Status of This Memo*
 
-   This is an Internet Standards Track document.
+This is an Internet Standards Track document.
 
-   This document is a product of the Internet Engineering Task Force
-   (IETF).  It represents the consensus of the IETF community.  It has
-   received public review and has been approved for publication by the
-   Internet Engineering Steering Group (IESG).  Further information on
-   Internet Standards is available in Section 2 of RFC 5741.
+This document is a product of the Internet Engineering Task Force (IETF).  It represents the consensus of the IETF
+community.  It has received public review and has been approved for publication by the Internet Engineering Steering
+Group (IESG).  Further information on Internet Standards is available in Section 2 of RFC 5741.
 
-   Information about the current status of this document, any errata,
-   and how to provide feedback on it may be obtained at
-   http://www.rfc-editor.org/info/rfc7518.
+Information about the current status of this document, any errata, and how to provide feedback on it may be obtained at
+http://www.rfc-editor.org/info/rfc7518.
 
-Copyright Notice
+*Copyright Notice*
 
-   Copyright (c) 2015 IETF Trust and the persons identified as the
-   document authors.  All rights reserved.
+Copyright (c) 2015 IETF Trust and the persons identified as the document authors.  All rights reserved.
 
-   This document is subject to BCP 78 and the IETF Trust's Legal
-   Provisions Relating to IETF Documents
-   (http://trustee.ietf.org/license-info) in effect on the date of
-   publication of this document.  Please review these documents
-   carefully, as they describe your rights and restrictions with respect
-   to this document.  Code Components extracted from this document must
-   include Simplified BSD License text as described in Section 4.e of
-   the Trust Legal Provisions and are provided without warranty as
-   described in the Simplified BSD License.
+This document is subject to BCP 78 and the IETF Trust's Legal Provisions Relating to IETF Documents
+(http://trustee.ietf.org/license-info) in effect on the date of publication of this document.  Please review these
+documents carefully, as they describe your rights and restrictions with respect to this document.  Code Components
+extracted from this document must include Simplified BSD License text as described in Section 4.e of the Trust Legal
+Provisions and are provided without warranty as described in the Simplified BSD License.
 
-
-
-
-
-
-
-
-Jones                        Standards Track                    [Page 1]
-
-RFC 7518                JSON Web Algorithms (JWA)               May 2015
-
-
+[source,]
+----
 Table of Contents
 
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   4
@@ -110,14 +94,6 @@ Table of Contents
      5.3.  Content Encryption with AES GCM . . . . . . . . . . . . .  27
    6.  Cryptographic Algorithms for Keys . . . . . . . . . . . . . .  27
      6.1.  "kty" (Key Type) Parameter Values . . . . . . . . . . . .  28
-
-
-
-Jones                        Standards Track                    [Page 2]
-
-RFC 7518                JSON Web Algorithms (JWA)               May 2015
-
-
      6.2.  Parameters for Elliptic Curve Keys  . . . . . . . . . . .  28
        6.2.1.  Parameters for Elliptic Curve Public Keys . . . . . .  28
          6.2.1.1.  "crv" (Curve) Parameter . . . . . . . . . . . . .  28
@@ -166,14 +142,6 @@ RFC 7518                JSON Web Algorithms (JWA)               May 2015
      8.7.  Reusing Key Material when Encrypting Keys . . . . . . . .  51
      8.8.  Password Considerations . . . . . . . . . . . . . . . . .  52
      8.9.  Key Entropy and Random Values . . . . . . . . . . . . . .  52
-
-
-
-Jones                        Standards Track                    [Page 3]
-
-RFC 7518                JSON Web Algorithms (JWA)               May 2015
-
-
      8.10. Differences between Digital Signatures and MACs . . . . .  52
      8.11. Using Matching Algorithm Strengths  . . . . . . . . . . .  53
      8.12. Adaptive Chosen-Ciphertext Attacks  . . . . . . . . . . .  53
@@ -195,434 +163,294 @@ RFC 7518                JSON Web Algorithms (JWA)               May 2015
    Appendix C.  Example ECDH-ES Key Agreement Computation  . . . . .  66
    Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . .  69
    Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .  69
+----
 
-1.  Introduction
+== 1.  Introduction
 
-   This specification registers cryptographic algorithms and identifiers
-   to be used with the JSON Web Signature (JWS) [JWS], JSON Web
-   Encryption (JWE) [JWE], and JSON Web Key (JWK) [JWK] specifications.
-   It defines several IANA registries for these identifiers.  All these
-   specifications utilize JSON-based [RFC7159] data structures.  This
-   specification also describes the semantics and operations that are
-   specific to these algorithms and key types.
+This specification registers cryptographic algorithms and identifiers to be used with the JSON Web Signature (JWS)
+[JWS], JSON Web Encryption (JWE) [JWE], and JSON Web Key (JWK) [JWK] specifications. It defines several IANA registries
+for these identifiers.  All these specifications utilize JSON-based [RFC7159] data structures.  This specification also
+describes the semantics and operations that are specific to these algorithms and key types.
 
-   Registering the algorithms and identifiers here, rather than in the
-   JWS, JWE, and JWK specifications, is intended to allow them to remain
-   unchanged in the face of changes in the set of Required, Recommended,
-   Optional, and Deprecated algorithms over time.  This also allows
-   changes to the JWS, JWE, and JWK specifications without changing this
-   document.
+Registering the algorithms and identifiers here, rather than in the JWS, JWE, and JWK specifications, is intended to
+allow them to remain unchanged in the face of changes in the set of Required, Recommended, Optional, and Deprecated
+algorithms over time.  This also allows changes to the JWS, JWE, and JWK specifications without changing this document.
 
-   Names defined by this specification are short because a core goal is
-   for the resulting representations to be compact.
+Names defined by this specification are short because a core goal is for the resulting representations to be compact.
 
 1.1.  Notational Conventions
 
-   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
-   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
-   "OPTIONAL" in this document are to be interpreted as described in
-   "Key words for use in RFCs to Indicate Requirement Levels" [RFC2119].
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT
+RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in "Key words for use in RFCs to
+Indicate Requirement Levels" [RFC2119].
 
+The interpretation should only be applied when the terms appear in all capital letters.
 
+BASE64URL(OCTETS) denotes the base64url encoding of OCTETS, per Section 2 of [JWS].
 
-Jones                        Standards Track                    [Page 4]
-
-RFC 7518                JSON Web Algorithms (JWA)               May 2015
+UTF8(STRING) denotes the octets of the UTF-8 [RFC3629] representation of STRING, where STRING is a sequence of zero or
+more Unicode [UNICODE] characters.
 
+ASCII(STRING) denotes the octets of the ASCII [RFC20] representation of STRING, where STRING is a sequence of zero or
+more ASCII characters.
 
-   The interpretation should only be applied when the terms appear in
-   all capital letters.
+The concatenation of two values A and B is denoted as A || B.
 
-   BASE64URL(OCTETS) denotes the base64url encoding of OCTETS, per
-   Section 2 of [JWS].
+== 2.  Terminology
 
-   UTF8(STRING) denotes the octets of the UTF-8 [RFC3629] representation
-   of STRING, where STRING is a sequence of zero or more Unicode
-   [UNICODE] characters.
+The terms "JSON Web Signature (JWS)", "Base64url Encoding", "Header Parameter", "JOSE Header", "JWS Payload", "JWS
+Protected Header", "JWS Signature", "JWS Signing Input", and "Unsecured JWS" are defined by the JWS specification [JWS].
 
-   ASCII(STRING) denotes the octets of the ASCII [RFC20] representation
-   of STRING, where STRING is a sequence of zero or more ASCII
-   characters.
+The terms "JSON Web Encryption (JWE)", "Additional Authenticated Data (AAD)", "Authentication Tag", "Content Encryption
+Key (CEK)", "Direct Encryption", "Direct Key Agreement", "JWE Authentication Tag", "JWE Ciphertext", "JWE Encrypted
+Key", "JWE Initialization Vector", "JWE Protected Header", "Key Agreement with Key Wrapping", "Key Encryption", "Key
+Management Mode", and "Key Wrapping" are defined by the JWE specification [JWE].
 
-   The concatenation of two values A and B is denoted as A || B.
+The terms "JSON Web Key (JWK)" and "JWK Set" are defined by the JWK specification [JWK].
 
-2.  Terminology
+The terms "Ciphertext", "Digital Signature", "Initialization Vector", "Message Authentication Code (MAC)", and
+"Plaintext" are defined by the "Internet Security Glossary, Version 2" [RFC4949].
 
-   The terms "JSON Web Signature (JWS)", "Base64url Encoding", "Header
-   Parameter", "JOSE Header", "JWS Payload", "JWS Protected Header",
-   "JWS Signature", "JWS Signing Input", and "Unsecured JWS" are defined
-   by the JWS specification [JWS].
+This term is defined by this specification:
 
-   The terms "JSON Web Encryption (JWE)", "Additional Authenticated Data
-   (AAD)", "Authentication Tag", "Content Encryption Key (CEK)", "Direct
-   Encryption", "Direct Key Agreement", "JWE Authentication Tag", "JWE
-   Ciphertext", "JWE Encrypted Key", "JWE Initialization Vector", "JWE
-   Protected Header", "Key Agreement with Key Wrapping", "Key
-   Encryption", "Key Management Mode", and "Key Wrapping" are defined by
-   the JWE specification [JWE].
+* Base64urlUInt: The representation of a positive or zero integer value as the base64url encoding of the value's
+  unsigned big-endian representation as an octet sequence.  The octet sequence MUST utilize the minimum number of octets
+  needed to represent the value.  Zero is represented as BASE64URL(single zero-valued octet), which is "AA".
 
-   The terms "JSON Web Key (JWK)" and "JWK Set" are defined by the JWK
-   specification [JWK].
+== 3.  Cryptographic Algorithms for Digital Signatures and MACs
 
-   The terms "Ciphertext", "Digital Signature", "Initialization Vector",
-   "Message Authentication Code (MAC)", and "Plaintext" are defined by
-   the "Internet Security Glossary, Version 2" [RFC4949].
-
-   This term is defined by this specification:
-
-   Base64urlUInt
-      The representation of a positive or zero integer value as the
-      base64url encoding of the value's unsigned big-endian
-      representation as an octet sequence.  The octet sequence MUST
-      utilize the minimum number of octets needed to represent the
-      value.  Zero is represented as BASE64URL(single zero-valued
-      octet), which is "AA".
-
-
-
-
-Jones                        Standards Track                    [Page 5]
-
-RFC 7518                JSON Web Algorithms (JWA)               May 2015
-
-
-3.  Cryptographic Algorithms for Digital Signatures and MACs
-
-   JWS uses cryptographic algorithms to digitally sign or create a MAC
-   of the contents of the JWS Protected Header and the JWS Payload.
+JWS uses cryptographic algorithms to digitally sign or create a MAC of the contents of the JWS Protected Header and the
+JWS Payload.
 
 3.1.  "alg" (Algorithm) Header Parameter Values for JWS
 
-   The table below is the set of "alg" (algorithm) Header Parameter
-   values defined by this specification for use with JWS, each of which
-   is explained in more detail in the following sections:
+The table below is the set of "alg" (algorithm) Header Parameter values defined by this specification for use with JWS,
+each of which is explained in more detail in the following sections:
 
-   +--------------+-------------------------------+--------------------+
-   | "alg" Param  | Digital Signature or MAC      | Implementation     |
-   | Value        | Algorithm                     | Requirements       |
-   +--------------+-------------------------------+--------------------+
-   | HS256        | HMAC using SHA-256            | Required           |
-   | HS384        | HMAC using SHA-384            | Optional           |
-   | HS512        | HMAC using SHA-512            | Optional           |
-   | RS256        | RSASSA-PKCS1-v1_5 using       | Recommended        |
-   |              | SHA-256                       |                    |
-   | RS384        | RSASSA-PKCS1-v1_5 using       | Optional           |
-   |              | SHA-384                       |                    |
-   | RS512        | RSASSA-PKCS1-v1_5 using       | Optional           |
-   |              | SHA-512                       |                    |
-   | ES256        | ECDSA using P-256 and SHA-256 | Recommended+       |
-   | ES384        | ECDSA using P-384 and SHA-384 | Optional           |
-   | ES512        | ECDSA using P-521 and SHA-512 | Optional           |
-   | PS256        | RSASSA-PSS using SHA-256 and  | Optional           |
-   |              | MGF1 with SHA-256             |                    |
-   | PS384        | RSASSA-PSS using SHA-384 and  | Optional           |
-   |              | MGF1 with SHA-384             |                    |
-   | PS512        | RSASSA-PSS using SHA-512 and  | Optional           |
-   |              | MGF1 with SHA-512             |                    |
-   | none         | No digital signature or MAC   | Optional           |
-   |              | performed                     |                    |
-   +--------------+-------------------------------+--------------------+
+[source,]
+----
++--------------+-------------------------------+--------------------+
+| "alg" Param  | Digital Signature or MAC      | Implementation     |
+| Value        | Algorithm                     | Requirements       |
++--------------+-------------------------------+--------------------+
+| HS256        | HMAC using SHA-256            | Required           |
+| HS384        | HMAC using SHA-384            | Optional           |
+| HS512        | HMAC using SHA-512            | Optional           |
+| RS256        | RSASSA-PKCS1-v1_5 using       | Recommended        |
+|              | SHA-256                       |                    |
+| RS384        | RSASSA-PKCS1-v1_5 using       | Optional           |
+|              | SHA-384                       |                    |
+| RS512        | RSASSA-PKCS1-v1_5 using       | Optional           |
+|              | SHA-512                       |                    |
+| ES256        | ECDSA using P-256 and SHA-256 | Recommended+       |
+| ES384        | ECDSA using P-384 and SHA-384 | Optional           |
+| ES512        | ECDSA using P-521 and SHA-512 | Optional           |
+| PS256        | RSASSA-PSS using SHA-256 and  | Optional           |
+|              | MGF1 with SHA-256             |                    |
+| PS384        | RSASSA-PSS using SHA-384 and  | Optional           |
+|              | MGF1 with SHA-384             |                    |
+| PS512        | RSASSA-PSS using SHA-512 and  | Optional           |
+|              | MGF1 with SHA-512             |                    |
+| none         | No digital signature or MAC   | Optional           |
+|              | performed                     |                    |
++--------------+-------------------------------+--------------------+
+----
 
-   The use of "+" in the Implementation Requirements column indicates
-   that the requirement strength is likely to be increased in a future
-   version of the specification.
+The use of "+" in the Implementation Requirements column indicates that the requirement strength is likely to be
+increased in a future version of the specification.
 
-   See Appendix A.1 for a table cross-referencing the JWS digital
-   signature and MAC "alg" (algorithm) values defined in this
-   specification with the equivalent identifiers used by other standards
-   and software packages.
-
-
-
-
-
-
-Jones                        Standards Track                    [Page 6]
-
-RFC 7518                JSON Web Algorithms (JWA)               May 2015
-
+See Appendix A.1 for a table cross-referencing the JWS digital signature and MAC "alg" (algorithm) values defined in
+this specification with the equivalent identifiers used by other standards and software packages.
 
 3.2.  HMAC with SHA-2 Functions
 
-   Hash-based Message Authentication Codes (HMACs) enable one to use a
-   secret plus a cryptographic hash function to generate a MAC.  This
-   can be used to demonstrate that whoever generated the MAC was in
-   possession of the MAC key.  The algorithm for implementing and
-   validating HMACs is provided in RFC 2104 [RFC2104].
+Hash-based Message Authentication Codes (HMACs) enable one to use a secret plus a cryptographic hash function to
+generate a MAC.  This can be used to demonstrate that whoever generated the MAC was in possession of the MAC key.  The
+algorithm for implementing and validating HMACs is provided in RFC 2104 [RFC2104].
 
-   A key of the same size as the hash output (for instance, 256 bits for
-   "HS256") or larger MUST be used with this algorithm.  (This
-   requirement is based on Section 5.3.4 (Security Effect of the HMAC
-   Key) of NIST SP 800-117 [NIST.800-107], which states that the
-   effective security strength is the minimum of the security strength
-   of the key and two times the size of the internal hash value.)
+A key of the same size as the hash output (for instance, 256 bits for "HS256") or larger MUST be used with this
+algorithm.  (This requirement is based on Section 5.3.4 (Security Effect of the HMAC Key) of NIST SP 800-117
+[NIST.800-107], which states that the effective security strength is the minimum of the security strength of the key and
+two times the size of the internal hash value.)
 
-   The HMAC SHA-256 MAC is generated per RFC 2104, using SHA-256 as the
-   hash algorithm "H", using the JWS Signing Input as the "text" value,
-   and using the shared key.  The HMAC output value is the JWS
-   Signature.
+The HMAC SHA-256 MAC is generated per RFC 2104, using SHA-256 as the hash algorithm "H", using the JWS Signing Input as
+the "text" value, and using the shared key.  The HMAC output value is the JWS Signature.
 
-   The following "alg" (algorithm) Header Parameter values are used to
-   indicate that the JWS Signature is an HMAC value computed using the
-   corresponding algorithm:
+The following "alg" (algorithm) Header Parameter values are used to indicate that the JWS Signature is an HMAC value
+computed using the corresponding algorithm:
 
-                +-------------------+--------------------+
-                | "alg" Param Value | MAC Algorithm      |
-                +-------------------+--------------------+
-                | HS256             | HMAC using SHA-256 |
-                | HS384             | HMAC using SHA-384 |
-                | HS512             | HMAC using SHA-512 |
-                +-------------------+--------------------+
+[source,]
+----
++-------------------+--------------------+
+| "alg" Param Value | MAC Algorithm      |
++-------------------+--------------------+
+| HS256             | HMAC using SHA-256 |
+| HS384             | HMAC using SHA-384 |
+| HS512             | HMAC using SHA-512 |
++-------------------+--------------------+
+----
 
-   The HMAC SHA-256 MAC for a JWS is validated by computing an HMAC
-   value per RFC 2104, using SHA-256 as the hash algorithm "H", using
-   the received JWS Signing Input as the "text" value, and using the
-   shared key.  This computed HMAC value is then compared to the result
-   of base64url decoding the received encoded JWS Signature value.  The
-   comparison of the computed HMAC value to the JWS Signature value MUST
-   be done in a constant-time manner to thwart timing attacks.
-   Alternatively, the computed HMAC value can be base64url encoded and
-   compared to the received encoded JWS Signature value (also in a
-   constant-time manner), as this comparison produces the same result as
-   comparing the unencoded values.  In either case, if the values match,
-   the HMAC has been validated.
+The HMAC SHA-256 MAC for a JWS is validated by computing an HMAC value per RFC 2104, using SHA-256 as the hash algorithm
+"H", using the received JWS Signing Input as the "text" value, and using the shared key.  This computed HMAC value is
+then compared to the result of base64url decoding the received encoded JWS Signature value.  The comparison of the
+computed HMAC value to the JWS Signature value MUST be done in a constant-time manner to thwart timing attacks.
+Alternatively, the computed HMAC value can be base64url encoded and compared to the received encoded JWS Signature value
+(also in a constant-time manner), as this comparison produces the same result as comparing the unencoded values.  In
+either case, if the values match, the HMAC has been validated.
 
+Securing content and validation with the HMAC SHA-384 and HMAC SHA-512 algorithms is performed identically to the
+procedure for HMAC SHA-256 -- just using the corresponding hash algorithms with correspondingly larger minimum key sizes
+and result values: 384 bits each for HMAC SHA-384 and 512 bits each for HMAC SHA-512.
 
+An example using this algorithm is shown in Appendix A.1 of [JWS].
 
+== 3.3.  Digital Signature with RSASSA-PKCS1-v1_5
 
+This section defines the use of the RSASSA-PKCS1-v1_5 digital signature algorithm as defined in Section 8.2 of RFC 3447
+[RFC3447] (commonly known as PKCS #1), using SHA-2 [SHS] hash functions.
 
+A key of size 2048 bits or larger MUST be used with these algorithms.
 
+The RSASSA-PKCS1-v1_5 SHA-256 digital signature is generated as follows: generate a digital signature of the JWS Signing
+Input using RSASSA-PKCS1-v1_5-SIGN and the SHA-256 hash function with the desired private key.  This is the JWS
+Signature value.
 
-Jones                        Standards Track                    [Page 7]
-
-RFC 7518                JSON Web Algorithms (JWA)               May 2015
+The following "alg" (algorithm) Header Parameter values are used to indicate that the JWS Signature is a digital
+signature value computed using the corresponding algorithm:
 
+[source,]
+----
++-------------------+---------------------------------+
+| "alg" Param Value | Digital Signature Algorithm     |
++-------------------+---------------------------------+
+| RS256             | RSASSA-PKCS1-v1_5 using SHA-256 |
+| RS384             | RSASSA-PKCS1-v1_5 using SHA-384 |
+| RS512             | RSASSA-PKCS1-v1_5 using SHA-512 |
++-------------------+---------------------------------+
+----
 
-   Securing content and validation with the HMAC SHA-384 and HMAC
-   SHA-512 algorithms is performed identically to the procedure for HMAC
-   SHA-256 -- just using the corresponding hash algorithms with
-   correspondingly larger minimum key sizes and result values: 384 bits
-   each for HMAC SHA-384 and 512 bits each for HMAC SHA-512.
+The RSASSA-PKCS1-v1_5 SHA-256 digital signature for a JWS is validated as follows: submit the JWS Signing Input, the JWS
+Signature, and the public key corresponding to the private key used by the signer to the RSASSA-PKCS1-v1_5-VERIFY
+algorithm using SHA-256 as the hash function.
 
-   An example using this algorithm is shown in Appendix A.1 of [JWS].
+Signing and validation with the RSASSA-PKCS1-v1_5 SHA-384 and RSASSA- PKCS1-v1_5 SHA-512 algorithms is performed
+identically to the procedure for RSASSA-PKCS1-v1_5 SHA-256 -- just using the corresponding hash algorithms instead of
+SHA-256.
 
-3.3.  Digital Signature with RSASSA-PKCS1-v1_5
-
-   This section defines the use of the RSASSA-PKCS1-v1_5 digital
-   signature algorithm as defined in Section 8.2 of RFC 3447 [RFC3447]
-   (commonly known as PKCS #1), using SHA-2 [SHS] hash functions.
-
-   A key of size 2048 bits or larger MUST be used with these algorithms.
-
-   The RSASSA-PKCS1-v1_5 SHA-256 digital signature is generated as
-   follows: generate a digital signature of the JWS Signing Input using
-   RSASSA-PKCS1-v1_5-SIGN and the SHA-256 hash function with the desired
-   private key.  This is the JWS Signature value.
-
-   The following "alg" (algorithm) Header Parameter values are used to
-   indicate that the JWS Signature is a digital signature value computed
-   using the corresponding algorithm:
-
-          +-------------------+---------------------------------+
-          | "alg" Param Value | Digital Signature Algorithm     |
-          +-------------------+---------------------------------+
-          | RS256             | RSASSA-PKCS1-v1_5 using SHA-256 |
-          | RS384             | RSASSA-PKCS1-v1_5 using SHA-384 |
-          | RS512             | RSASSA-PKCS1-v1_5 using SHA-512 |
-          +-------------------+---------------------------------+
-
-   The RSASSA-PKCS1-v1_5 SHA-256 digital signature for a JWS is
-   validated as follows: submit the JWS Signing Input, the JWS
-   Signature, and the public key corresponding to the private key used
-   by the signer to the RSASSA-PKCS1-v1_5-VERIFY algorithm using SHA-256
-   as the hash function.
-
-   Signing and validation with the RSASSA-PKCS1-v1_5 SHA-384 and RSASSA-
-   PKCS1-v1_5 SHA-512 algorithms is performed identically to the
-   procedure for RSASSA-PKCS1-v1_5 SHA-256 -- just using the
-   corresponding hash algorithms instead of SHA-256.
-
-   An example using this algorithm is shown in Appendix A.2 of [JWS].
-
-
-
-
-
-
-Jones                        Standards Track                    [Page 8]
-
-RFC 7518                JSON Web Algorithms (JWA)               May 2015
-
+An example using this algorithm is shown in Appendix A.2 of [JWS].
 
 3.4.  Digital Signature with ECDSA
 
-   The Elliptic Curve Digital Signature Algorithm (ECDSA) [DSS] provides
-   for the use of Elliptic Curve Cryptography, which is able to provide
-   equivalent security to RSA cryptography but using shorter key sizes
-   and with greater processing speed for many operations.  This means
-   that ECDSA digital signatures will be substantially smaller in terms
-   of length than equivalently strong RSA digital signatures.
+The Elliptic Curve Digital Signature Algorithm (ECDSA) [DSS] provides for the use of Elliptic Curve Cryptography, which
+is able to provide equivalent security to RSA cryptography but using shorter key sizes and with greater processing speed
+for many operations.  This means that ECDSA digital signatures will be substantially smaller in terms of length than
+equivalently strong RSA digital signatures.
 
-   This specification defines the use of ECDSA with the P-256 curve and
-   the SHA-256 cryptographic hash function, ECDSA with the P-384 curve
-   and the SHA-384 hash function, and ECDSA with the P-521 curve and the
-   SHA-512 hash function.  The P-256, P-384, and P-521 curves are
-   defined in [DSS].
+This specification defines the use of ECDSA with the P-256 curve and the SHA-256 cryptographic hash function, ECDSA with
+the P-384 curve and the SHA-384 hash function, and ECDSA with the P-521 curve and the SHA-512 hash function.  The P-256,
+P-384, and P-521 curves are defined in [DSS].
 
-   The ECDSA P-256 SHA-256 digital signature is generated as follows:
+The ECDSA P-256 SHA-256 digital signature is generated as follows:
 
-   1.  Generate a digital signature of the JWS Signing Input using ECDSA
-       P-256 SHA-256 with the desired private key.  The output will be
-       the pair (R, S), where R and S are 256-bit unsigned integers.
+1.  Generate a digital signature of the JWS Signing Input using ECDSA P-256 SHA-256 with the desired private key.  The
+    output will be the pair (R, S), where R and S are 256-bit unsigned integers.
 
-   2.  Turn R and S into octet sequences in big-endian order, with each
-       array being be 32 octets long.  The octet sequence
-       representations MUST NOT be shortened to omit any leading zero
-       octets contained in the values.
+2.  Turn R and S into octet sequences in big-endian order, with each array being be 32 octets long.  The octet sequence
+    representations MUST NOT be shortened to omit any leading zero octets contained in the values.
 
-   3.  Concatenate the two octet sequences in the order R and then S.
-       (Note that many ECDSA implementations will directly produce this
-       concatenation as their output.)
+3.  Concatenate the two octet sequences in the order R and then S. (Note that many ECDSA implementations will directly
+    produce this concatenation as their output.)
 
-   4.  The resulting 64-octet sequence is the JWS Signature value.
+4.  The resulting 64-octet sequence is the JWS Signature value.
 
-   The following "alg" (algorithm) Header Parameter values are used to
-   indicate that the JWS Signature is a digital signature value computed
-   using the corresponding algorithm:
+The following "alg" (algorithm) Header Parameter values are used to indicate that the JWS Signature is a digital
+signature value computed using the corresponding algorithm:
 
-           +-------------------+-------------------------------+
-           | "alg" Param Value | Digital Signature Algorithm   |
-           +-------------------+-------------------------------+
-           | ES256             | ECDSA using P-256 and SHA-256 |
-           | ES384             | ECDSA using P-384 and SHA-384 |
-           | ES512             | ECDSA using P-521 and SHA-512 |
-           +-------------------+-------------------------------+
+[source,]
+----
++-------------------+-------------------------------+
+| "alg" Param Value | Digital Signature Algorithm   |
++-------------------+-------------------------------+
+| ES256             | ECDSA using P-256 and SHA-256 |
+| ES384             | ECDSA using P-384 and SHA-384 |
+| ES512             | ECDSA using P-521 and SHA-512 |
++-------------------+-------------------------------+
+----
 
+The ECDSA P-256 SHA-256 digital signature for a JWS is validated as follows:
 
+1.  The JWS Signature value MUST be a 64-octet sequence.  If it is not a 64-octet sequence, the validation has failed.
 
+2.  Split the 64-octet sequence into two 32-octet sequences.  The first octet sequence represents R and the second S.
+    The values R and S are represented as octet sequences using the Integer-to- OctetString Conversion defined in
+    Section 2.3.7 of SEC1 [SEC1] (in big-endian octet order).
 
+3.  Submit the JWS Signing Input, R, S, and the public key (x, y) to the ECDSA P-256 SHA-256 validator.
 
+Signing and validation with the ECDSA P-384 SHA-384 and ECDSA P-521 SHA-512 algorithms is performed identically to the
+procedure for ECDSA P-256 SHA-256 -- just using the corresponding hash algorithms with correspondingly larger result
+values.  For ECDSA P-384 SHA-384, R and S will be 384 bits each, resulting in a 96-octet sequence.  For ECDSA P-521
+SHA-512, R and S will be 521 bits each, resulting in a 132-octet sequence.  (Note that the Integer-to-OctetString
+Conversion defined in Section 2.3.7 of SEC1 [SEC1] used to represent R and S as octet sequences adds zero-valued
+high-order padding bits when needed to round the size up to a multiple of 8 bits; thus, each 521-bit integer is
+represented using 528 bits in 66 octets.)
 
+Examples using these algorithms are shown in Appendices A.3 and A.4 of [JWS].
 
+== 3.5.  Digital Signature with RSASSA-PSS
 
-Jones                        Standards Track                    [Page 9]
-
-RFC 7518                JSON Web Algorithms (JWA)               May 2015
+This section defines the use of the RSASSA-PSS digital signature algorithm as defined in Section 8.1 of RFC 3447
+[RFC3447] with the MGF1 mask generation function and SHA-2 hash functions, always using the same hash function for both
+the RSASSA-PSS hash function and the MGF1 hash function.  The size of the salt value is the same size as the hash
+function output.  All other algorithm parameters use the defaults specified in Appendix A.2.3 of RFC 3447.
 
+A key of size 2048 bits or larger MUST be used with this algorithm.
 
-   The ECDSA P-256 SHA-256 digital signature for a JWS is validated as
-   follows:
+The RSASSA-PSS SHA-256 digital signature is generated as follows: generate a digital signature of the JWS Signing Input
+using RSASSA- PSS-SIGN, the SHA-256 hash function, and the MGF1 mask generation function with SHA-256 with the desired
+private key.  This is the JWS Signature value.
 
-   1.  The JWS Signature value MUST be a 64-octet sequence.  If it is
-       not a 64-octet sequence, the validation has failed.
+The following "alg" (algorithm) Header Parameter values are used to indicate that the JWS Signature is a digital
+signature value computed using the corresponding algorithm:
 
-   2.  Split the 64-octet sequence into two 32-octet sequences.  The
-       first octet sequence represents R and the second S.  The values R
-       and S are represented as octet sequences using the Integer-to-
-       OctetString Conversion defined in Section 2.3.7 of SEC1 [SEC1]
-       (in big-endian octet order).
+[source,]
+----
++-------------------+-----------------------------------------------+
+| "alg" Param Value | Digital Signature Algorithm                   |
++-------------------+-----------------------------------------------+
+| PS256             | RSASSA-PSS using SHA-256 and MGF1 with        |
+|                   | SHA-256                                       |
+| PS384             | RSASSA-PSS using SHA-384 and MGF1 with        |
+|                   | SHA-384                                       |
+| PS512             | RSASSA-PSS using SHA-512 and MGF1 with        |
+|                   | SHA-512                                       |
++-------------------+-----------------------------------------------+
+----
 
-   3.  Submit the JWS Signing Input, R, S, and the public key (x, y) to
-       the ECDSA P-256 SHA-256 validator.
+The RSASSA-PSS SHA-256 digital signature for a JWS is validated as follows: submit the JWS Signing Input, the JWS
+Signature, and the public key corresponding to the private key used by the signer to the RSASSA-PSS-VERIFY algorithm
+using SHA-256 as the hash function and using MGF1 as the mask generation function with SHA-256.
 
-   Signing and validation with the ECDSA P-384 SHA-384 and ECDSA P-521
-   SHA-512 algorithms is performed identically to the procedure for
-   ECDSA P-256 SHA-256 -- just using the corresponding hash algorithms
-   with correspondingly larger result values.  For ECDSA P-384 SHA-384,
-   R and S will be 384 bits each, resulting in a 96-octet sequence.  For
-   ECDSA P-521 SHA-512, R and S will be 521 bits each, resulting in a
-   132-octet sequence.  (Note that the Integer-to-OctetString Conversion
-   defined in Section 2.3.7 of SEC1 [SEC1] used to represent R and S as
-   octet sequences adds zero-valued high-order padding bits when needed
-   to round the size up to a multiple of 8 bits; thus, each 521-bit
-   integer is represented using 528 bits in 66 octets.)
+Signing and validation with the RSASSA-PSS SHA-384 and RSASSA-PSS SHA-512 algorithms is performed identically to the
+procedure for RSASSA-PSS SHA-256 -- just using the alternative hash algorithm in both roles.
 
-   Examples using these algorithms are shown in Appendices A.3 and A.4
-   of [JWS].
+== 3.6.  Using the Algorithm "none"
 
-3.5.  Digital Signature with RSASSA-PSS
+JWSs MAY also be created that do not provide integrity protection. Such a JWS is called an Unsecured JWS.  An Unsecured
+JWS uses the "alg" value "none" and is formatted identically to other JWSs, but MUST use the empty octet sequence as its
+JWS Signature value. Recipients MUST verify that the JWS Signature value is the empty octet sequence.
 
-   This section defines the use of the RSASSA-PSS digital signature
-   algorithm as defined in Section 8.1 of RFC 3447 [RFC3447] with the
-   MGF1 mask generation function and SHA-2 hash functions, always using
-   the same hash function for both the RSASSA-PSS hash function and the
-   MGF1 hash function.  The size of the salt value is the same size as
-   the hash function output.  All other algorithm parameters use the
-   defaults specified in Appendix A.2.3 of RFC 3447.
+Implementations that support Unsecured JWSs MUST NOT accept such objects as valid unless the application specifies that
+it is acceptable for a specific object to not be integrity protected. Implementations MUST NOT accept Unsecured JWSs by
+default.  In order to mitigate downgrade attacks, applications MUST NOT signal acceptance of Unsecured JWSs at a global
+level, and SHOULD signal acceptance on a per-object basis.  See Section 8.5 for security considerations associated with
+using this algorithm.
 
-   A key of size 2048 bits or larger MUST be used with this algorithm.
+== 4.  Cryptographic Algorithms for Key Management
 
-   The RSASSA-PSS SHA-256 digital signature is generated as follows:
-   generate a digital signature of the JWS Signing Input using RSASSA-
-   PSS-SIGN, the SHA-256 hash function, and the MGF1 mask generation
-   function with SHA-256 with the desired private key.  This is the JWS
-   Signature value.
+JWE uses cryptographic algorithms to encrypt or determine the Content Encryption Key (CEK).
 
-
-
-
-Jones                        Standards Track                   [Page 10]
-
-RFC 7518                JSON Web Algorithms (JWA)               May 2015
-
-
-   The following "alg" (algorithm) Header Parameter values are used to
-   indicate that the JWS Signature is a digital signature value computed
-   using the corresponding algorithm:
-
-   +-------------------+-----------------------------------------------+
-   | "alg" Param Value | Digital Signature Algorithm                   |
-   +-------------------+-----------------------------------------------+
-   | PS256             | RSASSA-PSS using SHA-256 and MGF1 with        |
-   |                   | SHA-256                                       |
-   | PS384             | RSASSA-PSS using SHA-384 and MGF1 with        |
-   |                   | SHA-384                                       |
-   | PS512             | RSASSA-PSS using SHA-512 and MGF1 with        |
-   |                   | SHA-512                                       |
-   +-------------------+-----------------------------------------------+
-
-   The RSASSA-PSS SHA-256 digital signature for a JWS is validated as
-   follows: submit the JWS Signing Input, the JWS Signature, and the
-   public key corresponding to the private key used by the signer to the
-   RSASSA-PSS-VERIFY algorithm using SHA-256 as the hash function and
-   using MGF1 as the mask generation function with SHA-256.
-
-   Signing and validation with the RSASSA-PSS SHA-384 and RSASSA-PSS
-   SHA-512 algorithms is performed identically to the procedure for
-   RSASSA-PSS SHA-256 -- just using the alternative hash algorithm in
-   both roles.
-
-3.6.  Using the Algorithm "none"
-
-   JWSs MAY also be created that do not provide integrity protection.
-   Such a JWS is called an Unsecured JWS.  An Unsecured JWS uses the
-   "alg" value "none" and is formatted identically to other JWSs, but
-   MUST use the empty octet sequence as its JWS Signature value.
-   Recipients MUST verify that the JWS Signature value is the empty
-   octet sequence.
-
-   Implementations that support Unsecured JWSs MUST NOT accept such
-   objects as valid unless the application specifies that it is
-   acceptable for a specific object to not be integrity protected.
-   Implementations MUST NOT accept Unsecured JWSs by default.  In order
-   to mitigate downgrade attacks, applications MUST NOT signal
-   acceptance of Unsecured JWSs at a global level, and SHOULD signal
-   acceptance on a per-object basis.  See Section 8.5 for security
-   considerations associated with using this algorithm.
-
-4.  Cryptographic Algorithms for Key Management
-
-   JWE uses cryptographic algorithms to encrypt or determine the Content
-   Encryption Key (CEK).
-
-
-
-Jones                        Standards Track                   [Page 11]
-
-RFC 7518                JSON Web Algorithms (JWA)               May 2015
-
-
-4.1.  "alg" (Algorithm) Header Parameter Values for JWE
+== 4.1.  "alg" (Algorithm) Header Parameter Values for JWE
 
    The table below is the set of "alg" (algorithm) Header Parameter
    values that are defined by this specification for use with JWE.
@@ -1153,7 +981,7 @@ RFC 7518                JSON Web Algorithms (JWA)               May 2015
    the possible range of keys introduced by the salt.  A minimum
    iteration count of 1000 is RECOMMENDED.
 
-5.  Cryptographic Algorithms for Content Encryption
+== 5.  Cryptographic Algorithms for Content Encryption
 
    JWE uses cryptographic algorithms to encrypt and integrity-protect
    the plaintext and to integrity-protect the Additional Authenticated
@@ -1266,88 +1094,57 @@ RFC 7518                JSON Web Algorithms (JWA)               May 2015
 
 5.2.2.1.  AES_CBC_HMAC_SHA2 Encryption
 
-   The authenticated encryption algorithm takes as input four octet
-   strings: a secret key K, a plaintext P, Additional Authenticated Data
-   A, and an Initialization Vector IV.  The authenticated ciphertext
-   value E and the Authentication Tag value T are provided as outputs.
-   The data in the plaintext are encrypted and authenticated, and the
-   Additional Authenticated Data are authenticated, but not encrypted.
+The authenticated encryption algorithm takes as input four octet strings: a secret key K, a plaintext P, Additional
+Authenticated Data A, and an Initialization Vector IV.  The authenticated ciphertext value E and the Authentication Tag
+value T are provided as outputs. The data in the plaintext are encrypted and authenticated, and the Additional
+Authenticated Data are authenticated, but not encrypted.
 
-   The encryption process is as follows, or uses an equivalent set of
-   steps:
+The encryption process is as follows, or uses an equivalent set of steps:
 
-   1.  The secondary keys MAC_KEY and ENC_KEY are generated from the
-       input key K as follows.  Each of these two keys is an octet
-       string.
+1.  The secondary keys MAC_KEY and ENC_KEY are generated from the input key K as follows.  Each of these two keys is an
+    octet string.
++
+[source,]
+----
+MAC_KEY consists of the initial MAC_KEY_LEN octets of K, in order.
+ENC_KEY consists of the final ENC_KEY_LEN octets of K, in order.
+----
++
+The number of octets in the input key K MUST be the sum of MAC_KEY_LEN and ENC_KEY_LEN.  The values of these parameters
+are specified by the Authenticated Encryption algorithms in Sections 5.2.3 through 5.2.5.  Note that the MAC key comes
+before the encryption key in the input key K; this is in the opposite order of the algorithm names in the identifier
+"AES_CBC_HMAC_SHA2".
 
-          MAC_KEY consists of the initial MAC_KEY_LEN octets of K, in
-          order.
-          ENC_KEY consists of the final ENC_KEY_LEN octets of K, in
-          order.
+2.  The IV used is a 128-bit value generated randomly or pseudorandomly for use in the cipher.
 
+3.  The plaintext is CBC encrypted using PKCS #7 padding using ENC_KEY as the key and the IV.  We denote the ciphertext
+    output from this step as E.
 
+4.  The octet string AL is equal to the number of bits in the Additional Authenticated Data A expressed as a 64-bit
+    unsigned big-endian integer.
 
+5.  A message Authentication Tag T is computed by applying HMAC [RFC2104] to the following data, in order:
 
+      the Additional Authenticated Data A,
+      the Initialization Vector IV,
+      the ciphertext E computed in the previous step, and
+      the octet string AL defined above.
 
-Jones                        Standards Track                   [Page 23]
-
-RFC 7518                JSON Web Algorithms (JWA)               May 2015
+   The string MAC_KEY is used as the MAC key.  We denote the output
+   of the MAC computed in this step as M.  The first T_LEN octets of
+   M are used as T.
 
+6.  The ciphertext E and the Authentication Tag T are returned as the outputs of the authenticated encryption.
 
-       The number of octets in the input key K MUST be the sum of
-       MAC_KEY_LEN and ENC_KEY_LEN.  The values of these parameters are
-       specified by the Authenticated Encryption algorithms in Sections
-       5.2.3 through 5.2.5.  Note that the MAC key comes before the
-       encryption key in the input key K; this is in the opposite order
-       of the algorithm names in the identifier "AES_CBC_HMAC_SHA2".
+The encryption process can be illustrated as follows.  Here K, P, A,
+IV, and E denote the key, plaintext, Additional Authenticated Data,
+Initialization Vector, and ciphertext, respectively.
 
-   2.  The IV used is a 128-bit value generated randomly or
-       pseudorandomly for use in the cipher.
-
-   3.  The plaintext is CBC encrypted using PKCS #7 padding using
-       ENC_KEY as the key and the IV.  We denote the ciphertext output
-       from this step as E.
-
-   4.  The octet string AL is equal to the number of bits in the
-       Additional Authenticated Data A expressed as a 64-bit unsigned
-       big-endian integer.
-
-   5.  A message Authentication Tag T is computed by applying HMAC
-       [RFC2104] to the following data, in order:
-
-          the Additional Authenticated Data A,
-          the Initialization Vector IV,
-          the ciphertext E computed in the previous step, and
-          the octet string AL defined above.
-
-       The string MAC_KEY is used as the MAC key.  We denote the output
-       of the MAC computed in this step as M.  The first T_LEN octets of
-       M are used as T.
-
-   6.  The ciphertext E and the Authentication Tag T are returned as the
-       outputs of the authenticated encryption.
-
-   The encryption process can be illustrated as follows.  Here K, P, A,
-   IV, and E denote the key, plaintext, Additional Authenticated Data,
-   Initialization Vector, and ciphertext, respectively.
-
-      MAC_KEY = initial MAC_KEY_LEN octets of K,
-      ENC_KEY = final ENC_KEY_LEN octets of K,
-      E = CBC-PKCS7-ENC(ENC_KEY, P),
-      M = MAC(MAC_KEY, A || IV || E || AL),
-      T = initial T_LEN octets of M.
-
-
-
-
-
-
-
-
-
-Jones                        Standards Track                   [Page 24]
-
-RFC 7518                JSON Web Algorithms (JWA)               May 2015
+  MAC_KEY = initial MAC_KEY_LEN octets of K,
+  ENC_KEY = final ENC_KEY_LEN octets of K,
+  E = CBC-PKCS7-ENC(ENC_KEY, P),
+  M = MAC(MAC_KEY, A || IV || E || AL),
+  T = initial T_LEN octets of M.
 
 
 5.2.2.2.  AES_CBC_HMAC_SHA2 Decryption
@@ -1490,7 +1287,7 @@ RFC 7518                JSON Web Algorithms (JWA)               May 2015
 
    An example using this algorithm is shown in Appendix A.1 of [JWE].
 
-6.  Cryptographic Algorithms for Keys
+== 6.  Cryptographic Algorithms for Keys
 
    A JSON Web Key (JWK) [JWK] is a JSON data structure that represents a
    cryptographic key.  These keys can be either asymmetric or symmetric.
@@ -1769,7 +1566,7 @@ RFC 7518                JSON Web Algorithms (JWA)               May 2015
    other single-valued) key.  It is represented as the base64url
    encoding of the octet sequence containing the key value.
 
-7.  IANA Considerations
+== 7.  IANA Considerations
 
    The following registration procedure is used for all the registries
    established by this specification.
@@ -2730,7 +2527,7 @@ RFC 7518                JSON Web Algorithms (JWA)               May 2015
    o  Change Controller: IESG
    o  Specification Document(s): Section 6.2.1.1 of RFC 7518
 
-8.  Security Considerations
+== 8.  Security Considerations
 
    All of the security issues that are pertinent to any cryptographic
    application must be addressed by JWS/JWE/JWK agents.  Among these
@@ -2808,115 +2605,67 @@ RFC 7518                JSON Web Algorithms (JWA)               May 2015
 
 8.5.  Unsecured JWS Security Considerations
 
-   Unsecured JWSs (JWSs that use the "alg" value "none") provide no
-   integrity protection.  Thus, they must only be used in contexts in
-   which the payload is secured by means other than a digital signature
-   or MAC value, or they need not be secured.
+Unsecured JWSs (JWSs that use the "alg" value "none") provide no integrity protection.  Thus, they must only be used in
+contexts in which the payload is secured by means other than a digital signature or MAC value, or they need not be
+secured.
 
-   An example means of preventing accepting Unsecured JWSs by default is
-   for the "verify" method of a hypothetical JWS software library to
-   have a Boolean "acceptUnsecured" parameter that indicates "none" is
-   an acceptable "alg" value.  As another example, the "verify" method
-   might take a list of algorithms that are acceptable to the
-   application as a parameter and would reject Unsecured JWS values if
-   "none" is not in that list.
+An example means of preventing accepting Unsecured JWSs by default is for the "verify" method of a hypothetical JWS
+software library to have a Boolean "acceptUnsecured" parameter that indicates "none" is an acceptable "alg" value.  As
+another example, the "verify" method might take a list of algorithms that are acceptable to the application as a
+parameter and would reject Unsecured JWS values if "none" is not in that list.
 
-   The following example illustrates the reasons for not accepting
-   Unsecured JWSs at a global level.  Suppose an application accepts
-   JWSs over two channels, (1) HTTP and (2) HTTPS with client
-   authentication.  It requires a JWS Signature on objects received over
-   HTTP, but accepts Unsecured JWSs over HTTPS.  If the application were
-   to globally indicate that "none" is acceptable, then an attacker
-   could provide it with an Unsecured JWS over HTTP and still have that
-   object successfully validate.  Instead, the application needs to
-   indicate acceptance of "none" for each object received over HTTPS
-   (e.g., by setting "acceptUnsecured" to "true" for the first
-   hypothetical JWS software library above), but not for each object
-   received over HTTP.
+The following example illustrates the reasons for not accepting Unsecured JWSs at a global level.  Suppose an
+application accepts JWSs over two channels, (1) HTTP and (2) HTTPS with client authentication.  It requires a JWS
+Signature on objects received over HTTP, but accepts Unsecured JWSs over HTTPS.  If the application were to globally
+indicate that "none" is acceptable, then an attacker could provide it with an Unsecured JWS over HTTP and still have
+that object successfully validate.  Instead, the application needs to indicate acceptance of "none" for each object
+received over HTTPS (e.g., by setting "acceptUnsecured" to "true" for the first hypothetical JWS software library
+above), but not for each object received over HTTP.
 
 8.6.  Denial-of-Service Attacks
 
-   Receiving agents that validate signatures and sending agents that
-   encrypt messages need to be cautious of cryptographic processing
-   usage when validating signatures and encrypting messages using keys
-   larger than those mandated in this specification.  An attacker could
-   supply content using keys that would result in excessive
-   cryptographic processing, for example, keys larger than those
-   mandated in this specification.  Implementations should set and
-   enforce upper limits on the key sizes they accept.  Section 5.6.1
-   (Comparable Algorithm Strengths) of NIST SP 800-57 [NIST.800-57]
-   contains statements on largest approved key sizes that may be
-   applicable.
+Receiving agents that validate signatures and sending agents that encrypt messages need to be cautious of cryptographic
+processing usage when validating signatures and encrypting messages using keys larger than those mandated in this
+specification.  An attacker could supply content using keys that would result in excessive cryptographic processing, for
+example, keys larger than those mandated in this specification.  Implementations should set and enforce upper limits on
+the key sizes they accept.  Section 5.6.1 (Comparable Algorithm Strengths) of NIST SP 800-57 [NIST.800-57] contains
+statements on largest approved key sizes that may be applicable.
 
 8.7.  Reusing Key Material when Encrypting Keys
 
-   It is NOT RECOMMENDED to reuse the same entire set of key material
-   (Key Encryption Key, Content Encryption Key, Initialization Vector,
-   etc.) to encrypt multiple JWK or JWK Set objects, or to encrypt the
-   same JWK or JWK Set object multiple times.  One suggestion for
+It is NOT RECOMMENDED to reuse the same entire set of key material (Key Encryption Key, Content Encryption Key,
+Initialization Vector, etc.) to encrypt multiple JWK or JWK Set objects, or to encrypt the same JWK or JWK Set object
+multiple times.  One suggestion for   preventing reuse is to always generate at least one new piece of key material for
+each encryption operation (e.g., a new Content Encryption Key, a new IV, and/or a new PBES2 Salt), based on the
+considerations noted in this document as well as from RFC 4086 [RFC4086].
 
+=== 8.8.  Password Considerations
 
+Passwords are vulnerable to a number of attacks.  To help mitigate some of these limitations, this document applies
+principles from RFC 2898 [RFC2898] to derive cryptographic keys from user-supplied passwords.
 
-Jones                        Standards Track                   [Page 51]
-
-RFC 7518                JSON Web Algorithms (JWA)               May 2015
+However, the strength of the password still has a significant impact. A high-entropy password has greater resistance to
+dictionary attacks. [NIST.800-63-2] contains guidelines for estimating password entropy, which can help applications and
+users generate stronger passwords.
 
+An ideal password is one that is as large as (or larger than) the derived key length.  However, passwords larger than a
+certain algorithm-specific size are first hashed, which reduces an attacker's effective search space to the length of
+the hash algorithm.  It is RECOMMENDED that a password used for "PBES2-HS256+A128KW" be no shorter than 16 octets and no
+longer than 128 octets and a password used for "PBES2-HS512+A256KW" be no shorter than 32 octets and no longer than 128
+octets long.
 
-   preventing reuse is to always generate at least one new piece of key
-   material for each encryption operation (e.g., a new Content
-   Encryption Key, a new IV, and/or a new PBES2 Salt), based on the
-   considerations noted in this document as well as from RFC 4086
-   [RFC4086].
+Still, care needs to be taken in where and how password-based encryption is used.  These algorithms can still be
+susceptible to dictionary-based attacks if the iteration count is too small; this is of particular concern if these
+algorithms are used to protect data that an attacker can have indefinite number of attempts to circumvent the
+protection, such as protected data stored on a file system.
 
-8.8.  Password Considerations
+=== 8.9.  Key Entropy and Random Values
 
-   Passwords are vulnerable to a number of attacks.  To help mitigate
-   some of these limitations, this document applies principles from RFC
-   2898 [RFC2898] to derive cryptographic keys from user-supplied
-   passwords.
+See Section 10.1 of [JWS] for security considerations on key entropy and random values.
 
-   However, the strength of the password still has a significant impact.
-   A high-entropy password has greater resistance to dictionary attacks.
-   [NIST.800-63-2] contains guidelines for estimating password entropy,
-   which can help applications and users generate stronger passwords.
+=== 8.10.  Differences between Digital Signatures and MACs
 
-   An ideal password is one that is as large as (or larger than) the
-   derived key length.  However, passwords larger than a certain
-   algorithm-specific size are first hashed, which reduces an attacker's
-   effective search space to the length of the hash algorithm.  It is
-   RECOMMENDED that a password used for "PBES2-HS256+A128KW" be no
-   shorter than 16 octets and no longer than 128 octets and a password
-   used for "PBES2-HS512+A256KW" be no shorter than 32 octets and no
-   longer than 128 octets long.
-
-   Still, care needs to be taken in where and how password-based
-   encryption is used.  These algorithms can still be susceptible to
-   dictionary-based attacks if the iteration count is too small; this is
-   of particular concern if these algorithms are used to protect data
-   that an attacker can have indefinite number of attempts to circumvent
-   the protection, such as protected data stored on a file system.
-
-8.9.  Key Entropy and Random Values
-
-   See Section 10.1 of [JWS] for security considerations on key entropy
-   and random values.
-
-8.10.  Differences between Digital Signatures and MACs
-
-   See Section 10.5 of [JWS] for security considerations on differences
-   between digital signatures and MACs.
-
-
-
-
-
-
-
-
-Jones                        Standards Track                   [Page 52]
-
-RFC 7518                JSON Web Algorithms (JWA)               May 2015
-
+See Section 10.5 of [JWS] for security considerations on differences between digital signatures and MACs.
 
 8.11.  Using Matching Algorithm Strengths
 
@@ -2938,16 +2687,13 @@ RFC 7518                JSON Web Algorithms (JWA)               May 2015
    See Section 9.3 of [JWK] for security considerations on RSA private
    key representations and blinding.
 
-9.  Internationalization Considerations
+== 9.  Internationalization Considerations
 
-   Passwords obtained from users are likely to require preparation and
-   normalization to account for differences of octet sequences generated
-   by different input devices, locales, etc.  It is RECOMMENDED that
-   applications perform the steps outlined in [PRECIS] to prepare a
-   password supplied directly by a user before performing key derivation
-   and encryption.
+Passwords obtained from users are likely to require preparation and normalization to account for differences of octet
+sequences generated by different input devices, locales, etc.  It is RECOMMENDED that applications perform the steps
+outlined in [PRECIS] to prepare a password supplied directly by a user before performing key derivation and encryption.
 
-10.  References
+== 10.  References
 
 10.1.  Normative References
 
