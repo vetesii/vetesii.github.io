@@ -1,0 +1,214 @@
+
+= 01 - OpenSSL - briansmith cheatsheet
+
+*https://gist.github.com/briansmith/2ee42439923d8e65a266994d0f70180b*
+
+(@https://gist.github.com/briansmith) (mentve: '20-02-08)
+
+# How to Generate & Use Private Keys using OpenSSL's Command Line Tool
+
+These commands generate and use private keys in unencrypted binary (not Base64 “PEM”) PKCS#8 format. The PKCS#8 format
+is used here because it is the most interoperable format when dealing with software that isn't based on OpenSSL.
+
+OpenSSL has a variety of commands that can be used to operate on private key files, some of which are specific to RSA
+(e.g. `openssl rsa` and `openssl genrsa`) or which have other limitations. Here we always use `openssl pkey`, `openssl
+genpkey`, and `openssl pkcs8`, regardless of the type of key.
+
+The first section describes how to generate private keys. The second and third sections describe how to extract the
+public key from the generated private key. The last section describes how to inspect a private key's metadata.
+
+== Generating Private Keys
+
+Ed25519 isn't listed here because OpenSSL's command line utilities do not support Ed25519 keys yet.
+
+=== ECC
+
+The key will use the named curve form, i.e. *the only correct form*, which unfortunately isn't the default form in all
+versions of OpenSSL.
+
+The algorithm identifier will be `id-ecPublicKey` (`1.2.840.10045.2.1`), which is what software for signing and
+verifying ECDSA signatures expects.
+
+==== ECC P-256
+
+[source,sh]
+----
+openssl genpkey -algorithm EC \
+    -pkeyopt ec_paramgen_curve:P-256 \
+    -pkeyopt ec_param_enc:named_curve | \
+  openssl pkcs8 -topk8 -nocrypt -outform der > p256-private-key.p8
+----
+
+==== ECC P-384
+
+[source,sh]
+----
+openssl genpkey -algorithm EC \
+    -pkeyopt ec_paramgen_curve:P-384 \
+    -pkeyopt ec_param_enc:named_curve |
+  openssl pkcs8 -topk8 -nocrypt -outform der > p384-private-key.p8
+----
+
+=== RSA
+
+The key will have two primes (i.e. it will not be a multi-prime key), and public exponent 65537, which are by far the
+most interoperable parameters. Unless you have special requirements, generate a 2048-bit key.
+
+The key's algorithm identifier is `rsaEncryption` (`1.2.840.113549.1.1.1`), which is the most interoperable form. Almost
+all software will accept keys marked as such for use in RSA encryption and for RSA PKCS#1 1.5 signatures and RSA-PSS
+signatures.
+
+==== 2048-bit RSA
+
+[source,sh]
+----
+openssl genpkey -algorithm RSA \
+    -pkeyopt rsa_keygen_bits:2048 \
+    -pkeyopt rsa_keygen_pubexp:65537 | \
+  openssl pkcs8 -topk8 -nocrypt -outform der > rsa-2048-private-key.p8
+----
+
+==== 3072-bit RSA
+
+[source,sh]
+----
+openssl genpkey -algorithm RSA \
+    -pkeyopt rsa_keygen_bits:3072 \
+    -pkeyopt rsa_keygen_pubexp:65537 | \
+  openssl pkcs8 -topk8 -nocrypt -outform der > rsa-3072-private-key.p8
+----
+
+== Extracting the Public Key from the Private Key as a SubjectPublicKeyInfo.
+
+PKCS#8 files are self-describing, and PKCS#8 private key files contain the public key, so the public key can be
+extracted from the private key file:
+
+[source,sh]
+----
+openssl pkey -pubout -inform der -outform der \
+    -in <filename> \
+    -out <another-filename>
+----
+
+Examples:
+
+[source,sh]
+----
+openssl pkey -pubout -inform der -outform der \
+    -in p256-private-key.p8 \
+    -out p256-public-key.spki
+----
+
+[source,sh]
+----
+openssl pkey -pubout -inform der -outform der \
+    -in p384-private-key.p8 \
+    -out p384-public-key.spki
+----
+
+[source,sh]
+----
+openssl pkey -pubout -inform der -outform der \
+    -in rsa-2048-private-key.p8 \
+    -out rsa-2048-public-key.spki
+----
+
+[source,sh]
+----
+openssl pkey -pubout -inform der -outform der \
+    -in rsa-3072-private-key.p8 \
+    -out rsa-3072-public-key.spki
+----
+
+## Extracting an RSA Public Key from the Private Key Without the SubjectPublicKeyInfo Metadata
+
+Above, we said we would only need `openssl pkey`, `openssl genpkey`, and `openssl pkcs8`, but that's only true if you
+don't need to output the legacy form of the public key. If you need the legacy form in binary (“DER”) format then can do
+the conversion following this example:
+
+[source,sh]
+----
+openssl pkey -pubout -inform der -outform der \
+    -in rsa-2048-private-key.p8 | \
+  openssl rsa -pubin -RSAPublicKey_out -inform DER -outform DER \
+    -out rsa-2048-public-key-legacy-form.der
+----
+
+The Base64 (“PEM”) form can be output following this example:
+
+[source,sh]
+----
+openssl pkey -pubout -inform der -outform der \
+    -in rsa-2048-private-key.p8 | \
+  openssl rsa -pubin -RSAPublicKey_out -inform DER -outform PEM \
+    -out rsa-2048-public-key-legacy-form.pem
+----
+
+## Inspecting a Key's Public Metadata
+
+PKCS#8 files are self-describing, and PKCS#8 private key files contain the public key, so a single command can output
+all the public properties for any private key.
+
+**WARNING**: By default OpenSSL's command line tool will output the value of the private key, even when you ask for it
+to output the public metadata; the `-noout` parameter suppresses this.
+
+[source,sh]
+----
+openssl pkey -noout -text_pub -inform der -in <filename>
+----
+
+For example, if you generated `p256-private-key.p8` as described in the
+in the section on generating private keys, then given the command:
+
+[source,sh]
+----
+openssl pkey -noout -text_pub -inform der -in p256-private-key.p8
+----
+
+you'd see output like this (with a different value for `pub`, the public key):
+
+----text
+Public-Key: (256 bit)
+pub:
+    04:cf:0d:13:a3:a7:57:72:31:ea:1b:66:cf:40:21:
+    cd:54:f2:1f:4a:c4:f5:f2:fd:d2:8e:05:bc:7d:2b:
+    d0:99:d1:37:4c:d0:8d:2e:f6:54:d6:f0:44:98:db:
+    46:2f:73:e0:28:20:58:dd:66:1a:4c:9b:04:37:af:
+    3f:7a:f6:e7:24
+ASN1 OID: prime256v1
+NIST CURVE: P-256
+----
+
+As another example, if you generated `rsa-2048-private-key.p8` as described in the section on generating private keys,
+then this:
+
+[source,sh]
+----
+openssl pkey -noout -text_pub -inform der -in rsa-2048-private-key.p8
+----
+
+would output something like this (with a different `modulus` value):
+
+----text
+Public-Key: (2048 bit)
+Modulus:
+    00:b9:d7:af:84:fa:41:84:a5:f2:20:37:ec:8a:ff:
+    2d:b5:f7:8b:d8:c2:1e:71:4e:57:9a:e5:7c:63:98:
+    c4:95:0f:3a:69:4b:17:bf:cc:f4:88:76:61:59:ae:
+    c5:bb:7c:2c:43:d5:9c:79:8c:bd:45:a0:9c:9c:86:
+    93:3f:12:68:79:ee:7e:ad:cd:40:4f:61:ec:fc:42:
+    51:97:ca:b0:39:46:ba:38:1a:49:ef:3b:4d:0f:60:
+    b1:7f:8a:74:7c:de:56:a8:34:a7:f6:00:8f:35:ff:
+    b2:f6:0a:54:ce:da:19:74:ff:2a:99:63:ab:a7:f8:
+    0d:4e:29:16:a9:3d:8c:74:bb:1b:a5:f3:b1:89:a4:
+    e8:f0:37:7b:d3:e9:4b:5c:c3:f9:c5:3c:b8:c8:c7:
+    c0:af:39:48:18:75:5e:96:8b:7a:76:d9:ca:da:8d:
+    a7:af:5f:be:25:da:2a:09:73:7d:5e:4e:4d:70:92:
+    aa:16:a0:71:8d:73:22:ce:8a:ca:76:70:15:12:8d:
+    6d:35:77:5e:a9:cb:8b:b1:ac:65:12:e1:b7:87:d3:
+    40:15:22:1b:e7:80:a3:7b:1d:69:bc:37:08:bf:d8:
+    83:25:91:be:60:95:a7:68:f0:fd:3b:34:57:92:7e:
+    6a:e3:64:1d:55:79:9a:29:a0:a2:69:cb:4a:69:3b:
+    c1:4b
+Exponent: 65537 (0x10001)
+----

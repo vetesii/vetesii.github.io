@@ -1,0 +1,9 @@
+
+= Ruby
+
+Például asciidoctor miatt.
+
+== Install (Windows)
+
+* https://rubyinstaller.org/downloads/
+*

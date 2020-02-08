@@ -1,0 +1,15 @@
+
+= plsql-developer
+
+== Ha Oracle home nélküli telepített PL/SQL developer-t kapsz
+
+https://stackoverflow.com/a/27926315
+
+[quote,Marcel de Castilho]
+____
+To fix this, download the 32-bit version of Oracle Instant Client, extract it to a directory such as C:\instantclient.
+
+Next, configure PL/SQL Developer to use this version by clicking on Tools -> Preferences. Under Connection -> Oracle Home, point to the location where you had extracted Instant Client (C:\instantclient), and under Connection -> OCI library, point to the oci.dll file in the same directory (C:\instantclient\oci.dll).
+
+Restart PL/SQL Developer and you should be able to connect.
+____
